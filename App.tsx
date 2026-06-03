@@ -9,6 +9,15 @@ import LoginScreen from './src/screens/auth/LoginScreen'
 import RegisterScreen from './src/screens/auth/RegisterScreen'
 import HomeScreen from './src/screens/main/HomeScreen'
 
+export type AuthStackParamList = {
+  Login: undefined
+  Register: undefined
+}
+
+export type MainStackParamList = {
+  Home: undefined
+}
+
 const Stack = createNativeStackNavigator()
 const queryClient = new QueryClient()
 

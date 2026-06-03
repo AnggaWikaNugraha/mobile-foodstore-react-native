@@ -2,28 +2,40 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import api from '../../lib/axios'
 import useAuthStore from '../../store/authStore'
+
+type AuthStackParamList = {
+  Login: undefined
+  Register: undefined
+}
+
+type Props = {
+  navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'>
+}
 
 const schema = z.object({
   email: z.email('Email tidak valid'),
   password: z.string().min(6, 'Password minimal 6 karakter'),
 })
 
-export default function LoginScreen({ navigation }) {
+type FormData = z.infer<typeof schema>
+
+export default function LoginScreen({ navigation }: Props) {
   const setAuth = useAuthStore((state) => state.setAuth)
 
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   })
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: FormData) => {
     try {
       const res = await api.post('/auth/login', data)
       await setAuth(res.data.user, res.data.token)
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Login Gagal', error.response?.data?.message || 'Terjadi kesalahan')
     }
   }

@@ -2,8 +2,18 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityInd
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import api from '../../lib/axios'
+
+type AuthStackParamList = {
+  Login: undefined
+  Register: undefined
+}
+
+type Props = {
+  navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'>
+}
 
 const schema = z.object({
   full_name: z.string().min(3, 'Nama minimal 3 karakter'),
@@ -11,19 +21,21 @@ const schema = z.object({
   password: z.string().min(6, 'Password minimal 6 karakter'),
 })
 
-export default function RegisterScreen({ navigation }) {
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+type FormData = z.infer<typeof schema>
+
+export default function RegisterScreen({ navigation }: Props) {
+  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { full_name: '', email: '', password: '' },
   })
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: FormData) => {
     try {
       await api.post('/auth/register', data)
       Alert.alert('Berhasil', 'Akun berhasil dibuat. Cek email untuk verifikasi.', [
         { text: 'OK', onPress: () => navigation.navigate('Login') }
       ])
-    } catch (error) {
+    } catch (error: any) {
       Alert.alert('Gagal', error.response?.data?.message || 'Terjadi kesalahan')
     }
   }

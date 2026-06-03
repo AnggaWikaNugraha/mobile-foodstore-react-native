@@ -1,7 +1,22 @@
 import { create } from 'zustand'
 import { getItem, setItem, deleteItem } from '../lib/secureStorage'
 
-const useAuthStore = create((set) => ({
+interface User {
+  _id: string
+  full_name: string
+  role: 'user' | 'admin'
+}
+
+interface AuthState {
+  user: User | null
+  token: string | null
+  isLoading: boolean
+  setAuth: (user: User, token: string) => Promise<void>
+  loadAuth: () => Promise<void>
+  logout: () => Promise<void>
+}
+
+const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
   isLoading: true,
