@@ -9,6 +9,7 @@ import LoginScreen from './src/screens/auth/LoginScreen'
 import RegisterScreen from './src/screens/auth/RegisterScreen'
 import GoogleAuthScreen from './src/screens/auth/GoogleAuthScreen'
 import HomeScreen from './src/screens/main/HomeScreen'
+import ProfileScreen from './src/screens/main/ProfileScreen'
 
 const Stack = createNativeStackNavigator()
 const queryClient = new QueryClient()
@@ -31,7 +32,10 @@ function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {token ? (
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="Login" component={LoginScreen} />

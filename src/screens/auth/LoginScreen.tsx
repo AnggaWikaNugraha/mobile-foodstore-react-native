@@ -6,6 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import api from '../../lib/axios'
 import useAuthStore from '../../store/authStore'
+import { useTheme } from '../../hooks/useTheme'
 import { AuthStackParamList } from '../../types/navigation'
 
 type Props = {
@@ -21,6 +22,7 @@ type FormData = z.infer<typeof schema>
 
 export default function LoginScreen({ navigation }: Props) {
   const setAuth = useAuthStore((state) => state.setAuth)
+  const t = useTheme()
 
   const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -76,7 +78,7 @@ export default function LoginScreen({ navigation }: Props) {
         {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
 
         <TouchableOpacity
-          style={[styles.button, isSubmitting && styles.buttonDisabled]}
+          style={[styles.button, { backgroundColor: t.primary }, isSubmitting && styles.buttonDisabled]}
           onPress={handleSubmit(onSubmit)}
           disabled={isSubmitting}
         >
@@ -100,7 +102,7 @@ export default function LoginScreen({ navigation }: Props) {
         </TouchableOpacity> */}
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.linkText}>Belum punya akun? <Text style={styles.link}>Daftar</Text></Text>
+          <Text style={styles.linkText}>Belum punya akun? <Text style={[styles.link, { color: t.primary }]}>Daftar</Text></Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   button: {
-    backgroundColor: '#f97316',
+    backgroundColor: 'transparent',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
@@ -175,7 +177,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   link: {
-    color: '#f97316',
     fontWeight: '600',
   },
   divider: {

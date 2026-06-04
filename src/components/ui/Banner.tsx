@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions } from 'react-native'
+import { useTheme } from '../../hooks/useTheme'
 
 const { width } = Dimensions.get('window')
 
@@ -12,6 +13,7 @@ const BANNERS = [
 export default function Banner() {
   const [activeIndex, setActiveIndex] = useState(0)
   const scrollRef = useRef<ScrollView>(null)
+  const t = useTheme()
 
   const handleScroll = (e: any) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / width)
@@ -28,11 +30,11 @@ export default function Banner() {
         onMomentumScrollEnd={handleScroll}
       >
         {BANNERS.map((banner) => (
-          <View key={banner.id} style={styles.banner}>
+          <View key={banner.id} style={[styles.banner, { backgroundColor: t.primary }]}>
             <Text style={styles.label}>🔥 {banner.label}</Text>
             <Text style={styles.title}>{banner.title}</Text>
             <TouchableOpacity style={styles.ctaButton}>
-              <Text style={styles.ctaText}>{banner.cta}</Text>
+              <Text style={[styles.ctaText, { color: t.primary }]}>{banner.cta}</Text>
             </TouchableOpacity>
           </View>
         ))}
@@ -56,7 +58,6 @@ const styles = StyleSheet.create({
   },
   banner: {
     width: width - 32,
-    backgroundColor: '#c0392b',
     padding: 20,
     paddingBottom: 36,
   },
@@ -87,7 +88,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   ctaText: {
-    color: '#c0392b',
     fontWeight: '700',
     fontSize: 13,
   },

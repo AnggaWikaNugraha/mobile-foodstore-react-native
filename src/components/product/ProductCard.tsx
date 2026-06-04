@@ -1,6 +1,7 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Product } from '../../types/product'
+import { useTheme } from '../../hooks/useTheme'
 
 interface Props {
   product: Product
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export default function ProductCard({ product, onPress, onAddToCart }: Props) {
+  const t = useTheme()
+
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price)
 
@@ -18,7 +21,7 @@ export default function ProductCard({ product, onPress, onAddToCart }: Props) {
         <Image source={{ uri: product.image_url }} style={styles.image} resizeMode="cover" />
 
         {product.stock > 0 && product.stock <= 5 && (
-          <View style={styles.stockBadge}>
+          <View style={[styles.stockBadge, { backgroundColor: t.primary }]}>
             <Text style={styles.stockBadgeText}>Sisa {product.stock}</Text>
           </View>
         )}
@@ -29,18 +32,18 @@ export default function ProductCard({ product, onPress, onAddToCart }: Props) {
       </View>
 
       <View style={styles.info}>
-        <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
-        <Text style={styles.price}>{formatPrice(product.price)}</Text>
+        <Text style={[styles.name, { color: t.text }]} numberOfLines={2}>{product.name}</Text>
+        <Text style={[styles.price, { color: t.primary }]}>{formatPrice(product.price)}</Text>
 
         <View style={styles.footer}>
-          <Text style={styles.noReview}>Belum ada ulasan</Text>
+          <Text style={[styles.noReview, { color: t.textMuted }]}>Belum ada ulasan</Text>
           {product.stock > 0 ? (
-            <TouchableOpacity style={styles.addButton} onPress={onAddToCart}>
-              <Ionicons name="add" size={18} color="#fff" />
+            <TouchableOpacity style={[styles.addButton, { backgroundColor: t.primary }]} onPress={onAddToCart}>
+              <Ionicons name="add" size={18} color={t.white} />
             </TouchableOpacity>
           ) : (
             <View style={styles.outOfStockBadge}>
-              <Text style={styles.outOfStockText}>Habis</Text>
+              <Text style={[styles.outOfStockText, { color: t.danger }]}>Habis</Text>
             </View>
           )}
         </View>
@@ -62,9 +65,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
   },
-  imageContainer: {
-    position: 'relative',
-  },
+  imageContainer: { position: 'relative' },
   image: {
     width: '100%',
     height: 130,
@@ -74,16 +75,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 8,
     left: 8,
-    backgroundColor: '#f97316',
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  stockBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: '700',
-  },
+  stockBadgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
   wishlistButton: {
     position: 'absolute',
     top: 8,
@@ -97,44 +93,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  info: {
-    padding: 10,
-  },
-  name: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1a1a1a',
-    marginBottom: 4,
-  },
-  price: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#c0392b',
-    marginBottom: 8,
-  },
+  info: { padding: 10 },
+  name: { fontSize: 13, fontWeight: '600', marginBottom: 4 },
+  price: { fontSize: 14, fontWeight: '700', marginBottom: 8 },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  noReview: {
-    fontSize: 11,
-    color: '#aaa',
-  },
-  addButton: {
-    backgroundColor: '#c0392b',
-    borderRadius: 8,
-    padding: 5,
-  },
+  noReview: { fontSize: 11 },
+  addButton: { borderRadius: 8, padding: 5 },
   outOfStockBadge: {
     backgroundColor: '#fee2e2',
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 3,
   },
-  outOfStockText: {
-    color: '#e53e3e',
-    fontSize: 11,
-    fontWeight: '600',
-  },
+  outOfStockText: { fontSize: 11, fontWeight: '600' },
 })

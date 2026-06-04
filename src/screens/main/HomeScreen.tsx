@@ -5,13 +5,20 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { useProducts } from '../../hooks/useProducts'
 import { useCategories } from '../../hooks/useCategories'
 import { useTags } from '../../hooks/useTags'
+import { useTheme } from '../../hooks/useTheme'
 import ProductCard from '../../components/product/ProductCard'
 import Header from '../../components/ui/Header'
 import Banner from '../../components/ui/Banner'
+import { MainStackParamList } from '../../types/navigation'
+
+type Props = {
+  navigation: NativeStackNavigationProp<MainStackParamList, 'Home'>
+}
 
 const CATEGORY_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMap> = {
   semua: 'view-grid',
@@ -21,7 +28,8 @@ const CATEGORY_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMa
   pastry: 'bread-slice',
 }
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }: Props) {
+  const t = useTheme()
   const [search, setSearch] = useState('')
   const [query, setQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -47,7 +55,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <Header />
+      <Header onProfilePress={() => navigation.navigate('Profile')} />
 
       <FlatList
         data={productsData?.data}
@@ -90,10 +98,10 @@ export default function HomeScreen() {
                     style={styles.categoryItem}
                     onPress={() => setSelectedCategory('')}
                   >
-                    <View style={[styles.categoryIcon, !selectedCategory && styles.categoryIconActive]}>
+                    <View style={[styles.categoryIcon, !selectedCategory && { backgroundColor: t.primary }]}>
                       <MaterialCommunityIcons name="view-grid" size={22} color="#fff" />
                     </View>
-                    <Text style={[styles.categoryLabel, !selectedCategory && styles.categoryLabelActive]}>
+                    <Text style={[styles.categoryLabel, !selectedCategory && { color: t.primary, fontWeight: '700' }]}>
                       Semua
                     </Text>
                   </TouchableOpacity>
@@ -107,10 +115,10 @@ export default function HomeScreen() {
                         style={styles.categoryItem}
                         onPress={() => setSelectedCategory(isActive ? '' : cat.name)}
                       >
-                        <View style={[styles.categoryIcon, isActive && styles.categoryIconActive]}>
+                        <View style={[styles.categoryIcon, isActive && { backgroundColor: t.primary }]}>
                           <MaterialCommunityIcons name={iconName} size={22} color="#fff" />
                         </View>
-                        <Text style={[styles.categoryLabel, isActive && styles.categoryLabelActive]}>
+                        <Text style={[styles.categoryLabel, isActive && { color: t.primary, fontWeight: '700' }]}>
                           {cat.name}
                         </Text>
                       </TouchableOpacity>
@@ -132,13 +140,13 @@ export default function HomeScreen() {
                   return (
                     <TouchableOpacity
                       key={tag._id}
-                      style={[styles.tagChip, isActive && styles.tagChipActive]}
+                      style={[styles.tagChip, isActive && { borderColor: t.primary, backgroundColor: t.primaryFaint }]}
                       onPress={() => toggleTag(tag.name)}
                     >
-                      <View style={styles.tagLetter}>
+                      <View style={[styles.tagLetter, { backgroundColor: t.primary }]}>
                         <Text style={styles.tagLetterText}>{tag.name[0].toUpperCase()}</Text>
                       </View>
-                      <Text style={[styles.tagText, isActive && styles.tagTextActive]}>
+                      <Text style={[styles.tagText, isActive && { color: t.primary, fontWeight: '600' }]}>
                         {tag.name}
                       </Text>
                     </TouchableOpacity>
@@ -154,7 +162,7 @@ export default function HomeScreen() {
 
             {isLoading && (
               <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#c0392b" />
+                <ActivityIndicator size="large" color={t.primary} />
               </View>
             )}
           </View>
@@ -218,17 +226,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  categoryIconActive: {
-    backgroundColor: '#c0392b',
-  },
   categoryLabel: {
     fontSize: 11,
     color: '#666',
     textTransform: 'capitalize',
-  },
-  categoryLabelActive: {
-    color: '#c0392b',
-    fontWeight: '700',
   },
   tagsContainer: {
     paddingHorizontal: 16,
@@ -246,15 +247,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     gap: 6,
   },
-  tagChipActive: {
-    borderColor: '#c0392b',
-    backgroundColor: '#fff5f5',
-  },
   tagLetter: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#c0392b',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -267,10 +263,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#555',
   },
-  tagTextActive: {
-    color: '#c0392b',
-    fontWeight: '600',
-  },
+
   productList: {
     padding: 10,
   },
