@@ -10,6 +10,7 @@ import RegisterScreen from './src/screens/auth/RegisterScreen'
 import GoogleAuthScreen from './src/screens/auth/GoogleAuthScreen'
 import HomeScreen from './src/screens/main/HomeScreen'
 import ProfileScreen from './src/screens/main/ProfileScreen'
+import CartScreen from './src/screens/main/CartScreen'
 
 const Stack = createNativeStackNavigator()
 const queryClient = new QueryClient()
@@ -35,6 +36,7 @@ function RootNavigator() {
         <>
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Cart" component={CartScreen} />
         </>
       ) : (
         <>

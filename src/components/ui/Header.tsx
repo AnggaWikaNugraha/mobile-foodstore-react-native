@@ -1,7 +1,9 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { useIsMutating } from '@tanstack/react-query'
 import useAuthStore from '../../store/authStore'
 import { useTheme } from '../../hooks/useTheme'
+import { useCart } from '../../hooks/useCart'
 
 interface Props {
   onCartPress?: () => void
@@ -13,6 +15,10 @@ interface Props {
 export default function Header({ onCartPress, onLoginPress, onRegisterPress, onProfilePress }: Props) {
   const { user, token } = useAuthStore()
   const t = useTheme()
+  const { data: cart, isFetching } = useCart()
+  const isMutating = useIsMutating({ mutationKey: ['cart'] }) > 0
+  const isCartLoading = isFetching || isMutating
+  const cartCount = (cart ?? []).reduce((sum, item) => sum + item.qty, 0)
 
   const initials = user?.full_name
     ? user.full_name.split(' ').slice(0, 2).map(n => n[0].toUpperCase()).join('')
@@ -29,7 +35,15 @@ export default function Header({ onCartPress, onLoginPress, onRegisterPress, onP
 
       <View style={styles.actions}>
         <TouchableOpacity style={styles.cartButton} onPress={onCartPress}>
-          <Ionicons name="cart-outline" size={22} color={t.white} />
+          {isCartLoading
+            ? <ActivityIndicator size={22} color={t.white} />
+            : <Ionicons name="cart-outline" size={22} color={t.white} />
+          }
+          {cartCount > 0 && !isCartLoading && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{cartCount > 99 ? '99+' : cartCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
 
         {token && user ? (
@@ -76,7 +90,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
-  cartButton: { padding: 4 },
+  cartButton: { padding: 4, position: 'relative' },
+  badge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: '#e53e3e',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '700',
+  },
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',

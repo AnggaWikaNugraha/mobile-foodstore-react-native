@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDebounce } from 'use-debounce'
 import {
   View, Text, TextInput, FlatList, TouchableOpacity,
   StyleSheet, ActivityIndicator, ScrollView,
@@ -31,12 +32,12 @@ const CATEGORY_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMa
 export default function HomeScreen({ navigation }: Props) {
   const t = useTheme()
   const [search, setSearch] = useState('')
-  const [query, setQuery] = useState('')
+  const [debouncedSearch] = useDebounce(search, 500)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
   const { data: productsData, isLoading, refetch } = useProducts({
-    q: query || undefined,
+    q: debouncedSearch || undefined,
     category: selectedCategory || undefined,
     tags: selectedTags.length > 0 ? selectedTags : undefined,
     limit: 20,
@@ -44,8 +45,6 @@ export default function HomeScreen({ navigation }: Props) {
 
   const { data: categoriesData } = useCategories()
   const { data: tagsData } = useTags()
-
-  const handleSearch = () => setQuery(search)
 
   const toggleTag = (tagName: string) => {
     setSelectedTags(prev =>
@@ -55,7 +54,10 @@ export default function HomeScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <Header onProfilePress={() => navigation.navigate('Profile')} />
+      <Header
+        onProfilePress={() => navigation.navigate('Profile')}
+        onCartPress={() => navigation.navigate('Cart')}
+      />
 
       <FlatList
         data={productsData?.data}
@@ -84,7 +86,6 @@ export default function HomeScreen({ navigation }: Props) {
                 placeholder="Cari produk..."
                 value={search}
                 onChangeText={setSearch}
-                onSubmitEditing={handleSearch}
                 returnKeyType="search"
               />
             </View>

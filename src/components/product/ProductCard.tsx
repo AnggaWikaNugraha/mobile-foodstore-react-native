@@ -1,16 +1,20 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { Product } from '../../types/product'
 import { useTheme } from '../../hooks/useTheme'
+import { useAddToCart, useCartQty } from '../../hooks/useCart'
+import { getImageUrl } from '../../lib/utils'
 
 interface Props {
   product: Product
   onPress?: () => void
-  onAddToCart?: () => void
 }
 
-export default function ProductCard({ product, onPress, onAddToCart }: Props) {
+export default function ProductCard({ product, onPress }: Props) {
   const t = useTheme()
+  const { addToCart, isPending } = useAddToCart()
+  const cartQty = useCartQty(product._id)
+  const isMaxStock = cartQty >= product.stock
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price)
@@ -18,7 +22,7 @@ export default function ProductCard({ product, onPress, onAddToCart }: Props) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.9}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: product.image_url }} style={styles.image} resizeMode="cover" />
+        <Image source={{ uri: getImageUrl(product.image_url) }} style={styles.image} resizeMode="cover" />
 
         {product.stock > 0 && product.stock <= 5 && (
           <View style={[styles.stockBadge, { backgroundColor: t.primary }]}>
@@ -38,8 +42,15 @@ export default function ProductCard({ product, onPress, onAddToCart }: Props) {
         <View style={styles.footer}>
           <Text style={[styles.noReview, { color: t.textMuted }]}>Belum ada ulasan</Text>
           {product.stock > 0 ? (
-            <TouchableOpacity style={[styles.addButton, { backgroundColor: t.primary }]} onPress={onAddToCart}>
-              <Ionicons name="add" size={18} color={t.white} />
+            <TouchableOpacity
+              style={[styles.addButton, { backgroundColor: isMaxStock ? '#ccc' : t.primary, opacity: isPending ? 0.6 : 1 }]}
+              onPress={() => addToCart(product._id)}
+              disabled={isPending || isMaxStock}
+            >
+              {isPending
+                ? <ActivityIndicator size={14} color={t.white} />
+                : <Ionicons name="add" size={18} color={t.white} />
+              }
             </TouchableOpacity>
           ) : (
             <View style={styles.outOfStockBadge}>
