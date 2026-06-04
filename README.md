@@ -31,6 +31,9 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Guest mode — beranda bisa diakses tanpa login
 
 **Home**
+
+<img src="assets/screenshots/home.png" width="250" />
+
 - [x] Product list (grid 2 kolom)
 - [x] Search produk dengan debounce (500ms)
 - [x] Filter kategori
