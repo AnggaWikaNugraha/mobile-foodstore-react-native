@@ -24,6 +24,11 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 ### ✅ Done
 
 **Auth**
+
+| Login | Register |
+|-------|----------|
+| <img src="assets/screenshots/mobile - login.png" width="200" /> | <img src="assets/screenshots/mobile - register.png" width="200" /> |
+
 - [x] Login (email + password)
 - [x] Register
 - [x] Auto login — cek token saat buka app, redirect otomatis
@@ -32,7 +37,9 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Home**
 
-<img src="assets/screenshots/home.png" width="250" />
+| Guest | Login |
+|-------|-------|
+| <img src="assets/screenshots/mobile - user beranda.png" width="200" /> | <img src="assets/screenshots/mobile - home.png" width="200" /> |
 
 - [x] Product list (grid 2 kolom)
 - [x] Search produk dengan debounce (500ms)
@@ -42,6 +49,9 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Header dengan cart badge + user avatar
 
 **Cart**
+
+<img src="assets/screenshots/mobile - cart.png" width="200" />
+
 - [x] Tambah ke cart (guest → redirect login)
 - [x] Cart badge count di header (realtime)
 - [x] Loading spinner di cart icon saat PUT/GET
