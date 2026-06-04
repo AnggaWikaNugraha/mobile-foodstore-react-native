@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Alert } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import api from '../lib/axios'
 import { Cart, CartItem, CartPayloadItem } from '../types/cart'
 import useAuthStore from '../store/authStore'
@@ -19,6 +20,7 @@ export function useCart() {
 
 export function useUpdateCart() {
   const queryClient = useQueryClient()
+  const navigation = useNavigation<any>()
 
   return useMutation({
     mutationKey: ['cart'],
@@ -29,8 +31,13 @@ export function useUpdateCart() {
       queryClient.invalidateQueries({ queryKey: ['cart'] })
     },
 
-    onError: () => {
-      Alert.alert('Gagal', 'Gagal update cart, coba lagi')
+    onError: (error: any) => {
+      const message = error?.response?.data?.message ?? ''
+      if (message.includes('not allowed') || error?.response?.status === 401) {
+        navigation.navigate('Login')
+      } else {
+        Alert.alert('Gagal', 'Gagal update cart, coba lagi')
+      }
     },
   })
 }

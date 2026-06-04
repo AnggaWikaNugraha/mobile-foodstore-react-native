@@ -16,7 +16,7 @@ const Stack = createNativeStackNavigator()
 const queryClient = new QueryClient()
 
 function RootNavigator() {
-  const { token, isLoading, loadAuth } = useAuthStore()
+  const { isLoading, loadAuth } = useAuthStore()
 
   useEffect(() => {
     loadAuth()
@@ -31,20 +31,13 @@ function RootNavigator() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {token ? (
-        <>
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="Cart" component={CartScreen} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="GoogleAuth" component={GoogleAuthScreen} options={{ title: 'Login dengan Google' }} />
-        </>
-      )}
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="GoogleAuth" component={GoogleAuthScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
     </Stack.Navigator>
   )
 }

@@ -8,4 +8,7 @@ export type MainStackParamList = {
   Home: undefined
   Profile: undefined
   Cart: undefined
+  Login: undefined
+  Register: undefined
+  GoogleAuth: undefined
 }

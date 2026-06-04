@@ -26,6 +26,9 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => {
     console.log(`[API ←] ${response.status} ${response.config.url}`, response.data)
+    if (response.data?.error === 1) {
+      return Promise.reject({ response, isAppError: true })
+    }
     return response
   },
   (error) => {

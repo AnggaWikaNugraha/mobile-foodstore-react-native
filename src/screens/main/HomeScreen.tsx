@@ -12,6 +12,7 @@ import { useProducts } from '../../hooks/useProducts'
 import { useCategories } from '../../hooks/useCategories'
 import { useTags } from '../../hooks/useTags'
 import { useTheme } from '../../hooks/useTheme'
+import useAuthStore from '../../store/authStore'
 import ProductCard from '../../components/product/ProductCard'
 import Header from '../../components/ui/Header'
 import Banner from '../../components/ui/Banner'
@@ -31,6 +32,7 @@ const CATEGORY_ICONS: Record<string, keyof typeof MaterialCommunityIcons.glyphMa
 
 export default function HomeScreen({ navigation }: Props) {
   const t = useTheme()
+  const token = useAuthStore((s) => s.token)
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounce(search, 500)
   const [selectedCategory, setSelectedCategory] = useState('')
@@ -56,7 +58,9 @@ export default function HomeScreen({ navigation }: Props) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <Header
         onProfilePress={() => navigation.navigate('Profile')}
-        onCartPress={() => navigation.navigate('Cart')}
+        onCartPress={() => token ? navigation.navigate('Cart') : navigation.navigate('Login')}
+        onLoginPress={() => navigation.navigate('Login')}
+        onRegisterPress={() => navigation.navigate('Register')}
       />
 
       <FlatList
