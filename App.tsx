@@ -7,16 +7,8 @@ import { View, ActivityIndicator } from 'react-native'
 import useAuthStore from './src/store/authStore'
 import LoginScreen from './src/screens/auth/LoginScreen'
 import RegisterScreen from './src/screens/auth/RegisterScreen'
+import GoogleAuthScreen from './src/screens/auth/GoogleAuthScreen'
 import HomeScreen from './src/screens/main/HomeScreen'
-
-export type AuthStackParamList = {
-  Login: undefined
-  Register: undefined
-}
-
-export type MainStackParamList = {
-  Home: undefined
-}
 
 const Stack = createNativeStackNavigator()
 const queryClient = new QueryClient()
@@ -44,6 +36,7 @@ function RootNavigator() {
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="GoogleAuth" component={GoogleAuthScreen} options={{ title: 'Login dengan Google' }} />
         </>
       )}
     </Stack.Navigator>

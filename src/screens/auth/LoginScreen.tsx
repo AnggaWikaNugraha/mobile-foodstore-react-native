@@ -6,11 +6,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import api from '../../lib/axios'
 import useAuthStore from '../../store/authStore'
-
-type AuthStackParamList = {
-  Login: undefined
-  Register: undefined
-}
+import { AuthStackParamList } from '../../types/navigation'
 
 type Props = {
   navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'>
@@ -90,6 +86,19 @@ export default function LoginScreen({ navigation }: Props) {
           }
         </TouchableOpacity>
 
+        {/* <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>atau</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity
+          style={styles.googleButton}
+          onPress={() => navigation.navigate('GoogleAuth')}
+        >
+          <Text style={styles.googleButtonText}>Masuk dengan Google</Text>
+        </TouchableOpacity> */}
+
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.linkText}>Belum punya akun? <Text style={styles.link}>Daftar</Text></Text>
         </TouchableOpacity>
@@ -168,5 +177,33 @@ const styles = StyleSheet.create({
   link: {
     color: '#f97316',
     fontWeight: '600',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#eee',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#aaa',
+    fontSize: 13,
+  },
+  googleButton: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  googleButtonText: {
+    color: '#333',
+    fontWeight: '600',
+    fontSize: 15,
   },
 })

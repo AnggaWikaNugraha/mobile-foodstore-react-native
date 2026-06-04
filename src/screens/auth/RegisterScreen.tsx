@@ -5,11 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import api from '../../lib/axios'
-
-type AuthStackParamList = {
-  Login: undefined
-  Register: undefined
-}
+import { AuthStackParamList } from '../../types/navigation'
 
 type Props = {
   navigation: NativeStackNavigationProp<AuthStackParamList, 'Register'>
