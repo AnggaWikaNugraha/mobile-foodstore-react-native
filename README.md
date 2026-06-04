@@ -37,7 +37,7 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Home**
 
-| Guest | Login |
+| Login | Guest |
 |-------|-------|
 | <img src="assets/screenshots/mobile - user beranda.png" width="200" /> | <img src="assets/screenshots/mobile - home.png" width="200" /> |
 
@@ -62,10 +62,16 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Cart icon loading saat mutasi berjalan
 
 **Profile**
+
+<img src="assets/screenshots/mobile - profile.png" width="200" />
+
 - [x] Biodata diri (nama, email, role, customer ID, login via Google)
 - [x] Ganti tema warna (Green Fern, Green Jade, Merah, Biru, Orange)
 
 **Tema**
+
+<img src="assets/screenshots/mobile - tema.png" width="200" />
+
 - [x] Multi-tema — Green Fern, Green Jade, Merah, Biru, Orange
 - [x] Token warna terpusat di `src/constants/themes.ts`
 - [x] Ganti tema dari Profile → tab Keamanan
