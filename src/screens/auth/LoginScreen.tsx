@@ -7,10 +7,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import api from '../../lib/axios'
 import useAuthStore from '../../store/authStore'
 import { useTheme } from '../../hooks/useTheme'
-import { AuthStackParamList } from '../../types/navigation'
+import { useGoogleAuth } from '../../hooks/useGoogleAuth'
+import { MainStackParamList } from '../../types/navigation'
 
 type Props = {
-  navigation: NativeStackNavigationProp<AuthStackParamList, 'Login'>
+  navigation: NativeStackNavigationProp<MainStackParamList, 'Login'>
 }
 
 const schema = z.object({
@@ -23,6 +24,7 @@ type FormData = z.infer<typeof schema>
 export default function LoginScreen({ navigation }: Props) {
   const setAuth = useAuthStore((state) => state.setAuth)
   const t = useTheme()
+  const { signInWithGoogle, isLoading: isGoogleLoading } = useGoogleAuth()
 
   const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -33,6 +35,7 @@ export default function LoginScreen({ navigation }: Props) {
     try {
       const res = await api.post('/auth/login', data)
       await setAuth(res.data.user, res.data.token)
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
     } catch (error: any) {
       Alert.alert('Login Gagal', error.response?.data?.message || 'Terjadi kesalahan')
     }
@@ -88,18 +91,22 @@ export default function LoginScreen({ navigation }: Props) {
           }
         </TouchableOpacity>
 
-        {/* <View style={styles.divider}>
+        <View style={styles.divider}>
           <View style={styles.dividerLine} />
           <Text style={styles.dividerText}>atau</Text>
           <View style={styles.dividerLine} />
         </View>
 
         <TouchableOpacity
-          style={styles.googleButton}
-          onPress={() => navigation.navigate('GoogleAuth')}
+          style={[styles.googleButton, isGoogleLoading && styles.buttonDisabled]}
+          onPress={signInWithGoogle}
+          disabled={isGoogleLoading}
         >
-          <Text style={styles.googleButtonText}>Masuk dengan Google</Text>
-        </TouchableOpacity> */}
+          {isGoogleLoading
+            ? <ActivityIndicator color="#333" />
+            : <Text style={styles.googleButtonText}>Masuk dengan Google</Text>
+          }
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.linkText}>Belum punya akun? <Text style={[styles.link, { color: t.primary }]}>Daftar</Text></Text>

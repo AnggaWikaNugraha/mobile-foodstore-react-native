@@ -8,8 +8,12 @@ export interface CartItem {
 }
 
 export interface CartPayloadItem {
-  _id: string // product_id
+  _id: string
+  name: string
+  price: number
+  image_url: string
   qty: number
+  checked: boolean
 }
 
 export type Cart = CartItem[]

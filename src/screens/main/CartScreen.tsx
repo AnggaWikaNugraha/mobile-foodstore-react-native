@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
@@ -27,34 +26,32 @@ export default function CartScreen({ navigation }: Props) {
 
   const items: CartItem[] = cart ?? []
 
-  const [checked, setChecked] = useState<Record<string, boolean>>({})
-
-  useEffect(() => {
-    if (items.length > 0) {
-      const init: Record<string, boolean> = {}
-      items.forEach(i => { init[i._id] = i.checked ?? true })
-      setChecked(init)
-    }
-  }, [cart])
-
-  const checkedItems = items.filter(i => checked[i._id])
-  const allChecked = items.length > 0 && items.every(i => checked[i._id])
+  const checkedItems = items.filter(i => i.checked !== false)
+  const allChecked = items.length > 0 && items.every(i => i.checked !== false)
   const subtotal = checkedItems.reduce((sum, i) => sum + i.price * i.qty, 0)
   const deliveryFee = checkedItems.length > 0 ? 20000 : 0
   const total = subtotal + deliveryFee
 
+  const buildPayload = (updated: CartItem[]): CartPayloadItem[] =>
+    updated.map(i => ({
+      _id: i._id,
+      name: i.name,
+      price: i.price,
+      image_url: i.image_url,
+      qty: i.qty,
+      checked: i.checked ?? true,
+    }))
+
   const toggleAll = () => {
     const next = !allChecked
-    const updated: Record<string, boolean> = {}
-    items.forEach(i => { updated[i._id] = next })
-    setChecked(updated)
+    const updated = items.map(i => ({ ...i, checked: next }))
+    updateCart.mutate(buildPayload(updated))
   }
 
-  const toggleItem = (id: string) =>
-    setChecked(prev => ({ ...prev, [id]: !prev[id] }))
-
-  const buildPayload = (updated: CartItem[]): CartPayloadItem[] =>
-    updated.map(i => ({ _id: i._id, qty: i.qty }))
+  const toggleItem = (id: string) => {
+    const updated = items.map(i => i._id === id ? { ...i, checked: !i.checked } : i)
+    updateCart.mutate(buildPayload(updated))
+  }
 
   const updateQty = (productId: string, qty: number) => {
     const updated = qty === 0
@@ -64,7 +61,7 @@ export default function CartScreen({ navigation }: Props) {
   }
 
   const deleteChecked = () => {
-    const updated = items.filter(i => !checked[i._id])
+    const updated = items.filter(i => i.checked === false)
     updateCart.mutate(buildPayload(updated))
   }
 
@@ -103,8 +100,8 @@ export default function CartScreen({ navigation }: Props) {
           renderItem={({ item }) => (
             <View style={[styles.card, isCartLoading && styles.cardDisabled]}>
               <TouchableOpacity onPress={() => toggleItem(item._id)}>
-                <View style={[styles.checkbox, checked[item._id] && { backgroundColor: t.primary, borderColor: t.primary }]}>
-                  {checked[item._id] && <Ionicons name="checkmark" size={13} color="#fff" />}
+                <View style={[styles.checkbox, item.checked !== false && { backgroundColor: t.primary, borderColor: t.primary }]}>
+                  {item.checked !== false && <Ionicons name="checkmark" size={13} color="#fff" />}
                 </View>
               </TouchableOpacity>
 
@@ -176,7 +173,10 @@ export default function CartScreen({ navigation }: Props) {
                   <Text style={styles.totalValue}>{formatPrice(total)}</Text>
                 </View>
 
-                <TouchableOpacity style={[styles.buyBtn, { backgroundColor: t.primary }]}>
+                <TouchableOpacity
+                  style={[styles.buyBtn, { backgroundColor: t.primary }]}
+                  onPress={() => navigation.navigate('Checkout')}
+                >
                   <Text style={styles.buyBtnText}>Beli ({checkedItems.length})</Text>
                 </TouchableOpacity>
               </View>

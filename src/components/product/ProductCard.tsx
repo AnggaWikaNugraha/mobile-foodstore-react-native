@@ -44,7 +44,7 @@ export default function ProductCard({ product, onPress }: Props) {
           {product.stock > 0 ? (
             <TouchableOpacity
               style={[styles.addButton, { backgroundColor: isMaxStock ? '#ccc' : t.primary, opacity: isPending ? 0.6 : 1 }]}
-              onPress={() => addToCart(product._id)}
+              onPress={() => addToCart(product)}
               disabled={isPending || isMaxStock}
             >
               {isPending

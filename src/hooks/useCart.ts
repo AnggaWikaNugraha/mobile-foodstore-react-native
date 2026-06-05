@@ -48,22 +48,33 @@ export function useCartQty(productId: string): number {
   return (cart ?? []).find(i => i._id === productId)?.qty ?? 0
 }
 
+interface AddToCartProduct {
+  _id: string
+  name: string
+  price: number
+  image_url: string
+}
+
 export function useAddToCart() {
   const queryClient = useQueryClient()
   const updateCart = useUpdateCart()
 
-  const addToCart = (productId: string, qty = 1) => {
+  const addToCart = (product: AddToCartProduct, qty = 1) => {
     const cart = queryClient.getQueryData<Cart>(['cart'])
     const currentItems: CartPayloadItem[] = (cart ?? []).map((item: CartItem) => ({
       _id: item._id,
+      name: item.name,
+      price: item.price,
+      image_url: item.image_url,
       qty: item.qty,
+      checked: item.checked ?? true,
     }))
 
-    const existing = currentItems.find(i => i._id === productId)
+    const existing = currentItems.find(i => i._id === product._id)
 
-    const newItems = existing
-      ? currentItems.map(i => i._id === productId ? { ...i, qty: i.qty + qty } : i)
-      : [...currentItems, { _id: productId, qty }]
+    const newItems: CartPayloadItem[] = existing
+      ? currentItems.map(i => i._id === product._id ? { ...i, qty: i.qty + qty } : i)
+      : [...currentItems, { _id: product._id, name: product.name, price: product.price, image_url: product.image_url, qty, checked: true }]
 
     updateCart.mutate(newItems)
   }
