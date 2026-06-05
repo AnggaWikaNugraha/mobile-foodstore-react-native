@@ -47,7 +47,7 @@ export default function CheckoutScreen({ navigation }: Props) {
         delivery_fee: DELIVERY_FEE,
         delivery_address: selectedAddress._id,
       })
-      navigation.replace('Invoice', { orderId: order._id })
+      navigation.replace('Invoice', { orderId: order._id, fromCheckout: true })
     } catch {
       Alert.alert('Gagal', 'Gagal membuat pesanan, coba lagi')
     }

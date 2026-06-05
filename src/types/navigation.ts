@@ -6,10 +6,10 @@ export type AuthStackParamList = {
 
 export type MainStackParamList = {
   Home: undefined
-  Profile: undefined
+  Profile: { initialTab?: 'biodata' | 'alamat' | 'riwayat' | 'keamanan' } | undefined
   Cart: undefined
   Checkout: undefined
-  Invoice: { orderId: string }
+  Invoice: { orderId: string; fromCheckout?: boolean }
   Login: undefined
   Register: undefined
   GoogleAuth: undefined

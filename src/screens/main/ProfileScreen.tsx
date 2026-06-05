@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RouteProp } from '@react-navigation/native'
 
 import useAuthStore from '../../store/authStore'
 import { useTheme, useThemeName, useSetTheme } from '../../hooks/useTheme'
+import { useOrders } from '../../hooks/useOrders'
 import { ThemeName } from '../../constants/themes'
 import { MainStackParamList } from '../../types/navigation'
+import { Order, OrderStatus } from '../../types/order'
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'Profile'>
+  route: RouteProp<MainStackParamList, 'Profile'>
 }
 
 type Tab = 'biodata' | 'alamat' | 'riwayat' | 'keamanan'
@@ -30,12 +34,39 @@ const THEMES: { name: ThemeName; label: string; color: string }[] = [
   { name: 'orange', label: 'Orange', color: '#f97316' },
 ]
 
-export default function ProfileScreen({ navigation }: Props) {
+const formatPrice = (n: number) =>
+  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n)
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+
+function orderTotal(order: Order): number {
+  const itemsTotal = (order.order_items as any[]).reduce((s: number, i: any) =>
+    typeof i === 'string' ? s : s + (i.price ?? 0) * (i.qty ?? 1), 0)
+  return itemsTotal + order.delivery_fee
+}
+
+const STATUS_BADGE: Record<OrderStatus, { label: string; color: string }> = {
+  waiting_payment:   { label: 'Menunggu', color: '#f59e0b' },
+  payment_confirmed: { label: 'Diproses', color: '#3b82f6' },
+  processing:        { label: 'Diproses', color: '#3b82f6' },
+  in_delivery:       { label: 'Dikirim',  color: '#8b5cf6' },
+  delivered:         { label: 'Lunas',    color: '#22c55e' },
+  failed:            { label: 'Gagal',    color: '#ef4444' },
+  expired:           { label: 'Gagal',    color: '#ef4444' },
+}
+
+export default function ProfileScreen({ navigation, route }: Props) {
   const { user, logout } = useAuthStore()
   const t = useTheme()
   const themeName = useThemeName()
   const setTheme = useSetTheme()
-  const [activeTab, setActiveTab] = useState<Tab>('biodata')
+  const [activeTab, setActiveTab] = useState<Tab>(route.params?.initialTab ?? 'biodata')
+
+  const { data: rawOrders, isLoading: loadingOrders } = useOrders()
+  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const waitingOrders = orders.filter(o => o.status === 'waiting_payment')
+  const [bannerExpanded, setBannerExpanded] = useState(false)
 
   const initials = user?.full_name
     ? user.full_name.split(' ').slice(0, 2).map(n => n[0].toUpperCase()).join('')
@@ -133,9 +164,81 @@ export default function ProfileScreen({ navigation }: Props) {
           )}
 
           {activeTab === 'riwayat' && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Riwayat Belanja</Text>
-              <Text style={styles.cardSubtitle}>Coming soon</Text>
+            <View>
+              {waitingOrders.length > 0 && (
+                <View style={[styles.waitingBanner, { backgroundColor: '#fff8ec', borderColor: '#f59e0b' }]}>
+                  <TouchableOpacity
+                    style={styles.waitingBannerRow}
+                    onPress={() => setBannerExpanded(v => !v)}
+                  >
+                    <Ionicons name="hourglass-outline" size={18} color="#f59e0b" />
+                    <Text style={[styles.waitingBannerText, { color: '#b45309' }]}>
+                      {waitingOrders.length} pesanan menunggu pembayaran
+                    </Text>
+                    <Ionicons
+                      name={bannerExpanded ? 'chevron-up' : 'chevron-down'}
+                      size={16} color="#f59e0b"
+                    />
+                  </TouchableOpacity>
+
+                  {bannerExpanded && waitingOrders.map(order => (
+                    <TouchableOpacity
+                      key={order._id}
+                      style={styles.waitingBannerItem}
+                      onPress={() => navigation.navigate('Invoice', { orderId: order._id })}
+                    >
+                      <Ionicons name="receipt-outline" size={14} color="#b45309" />
+                      <Text style={[styles.waitingBannerItemText, { color: '#b45309' }]}>
+                        Order #{order.order_number}
+                      </Text>
+                      <Text style={[styles.waitingBannerItemDate, { color: '#d97706' }]}>
+                        {formatDate(order.createdAt)}
+                      </Text>
+                      <Ionicons name="chevron-forward" size={13} color="#f59e0b" style={{ marginLeft: 'auto' }} />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+
+              <View style={[styles.card, { marginTop: 12 }]}>
+                <Text style={styles.cardTitle}>Riwayat Belanja</Text>
+                {loadingOrders
+                  ? <ActivityIndicator color={t.primary} style={{ marginTop: 16 }} />
+                  : !orders?.length
+                    ? <Text style={[styles.cardSubtitle, { marginTop: 8 }]}>Belum ada transaksi.</Text>
+                    : <>
+                        <Text style={styles.cardSubtitle}>{orders.length} transaksi tercatat</Text>
+                        {orders.map((order) => {
+                          const badge = STATUS_BADGE[order.status]
+                          return (
+                            <TouchableOpacity
+                              key={order._id}
+                              style={styles.orderRow}
+                              onPress={() => navigation.navigate('Invoice', { orderId: order._id })}
+                            >
+                              <View style={styles.orderThumb}>
+                                <Ionicons name="receipt-outline" size={18} color="#aaa" />
+                              </View>
+                              <View style={{ flex: 1 }}>
+                                <Text style={styles.orderNumber}>Order #{order.order_number}</Text>
+                                <Text style={[styles.orderDate, { color: t.textMuted }]}>
+                                  {formatDate(order.createdAt)}
+                                </Text>
+                              </View>
+                              <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                                <Text style={styles.orderTotal}>{formatPrice(orderTotal(order))}</Text>
+                                <View style={[styles.statusBadge, { backgroundColor: badge.color + '20' }]}>
+                                  <Text style={[styles.statusBadgeText, { color: badge.color }]}>
+                                    {badge.label}
+                                  </Text>
+                                </View>
+                              </View>
+                            </TouchableOpacity>
+                          )
+                        })}
+                      </>
+                }
+              </View>
             </View>
           )}
 
@@ -319,4 +422,31 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#888',
   },
+  waitingBanner: {
+    borderWidth: 1, borderRadius: 10, overflow: 'hidden',
+  },
+  waitingBannerRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12,
+  },
+  waitingBannerText: { flex: 1, fontSize: 13, fontWeight: '600' },
+  waitingBannerItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 12, paddingVertical: 10,
+    borderTopWidth: 1, borderTopColor: '#fde68a',
+  },
+  waitingBannerItemText: { fontSize: 13, fontWeight: '600' },
+  waitingBannerItemDate: { fontSize: 12 },
+  orderRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f5f5f5',
+  },
+  orderThumb: {
+    width: 44, height: 44, borderRadius: 8,
+    backgroundColor: '#f4f4f4', justifyContent: 'center', alignItems: 'center',
+  },
+  orderNumber: { fontSize: 14, fontWeight: '700', color: '#1a1a1a' },
+  orderDate: { fontSize: 12, marginTop: 2 },
+  orderTotal: { fontSize: 14, fontWeight: '700', color: '#1a1a1a' },
+  statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
+  statusBadgeText: { fontSize: 11, fontWeight: '700' },
 })

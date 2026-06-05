@@ -17,7 +17,7 @@ import { useConfirmDelivery } from '../../hooks/useConfirmDelivery'
 import { buildSnapHtml } from '../../lib/snapHtml'
 import { getImageUrl } from '../../lib/utils'
 import { MainStackParamList } from '../../types/navigation'
-import { OrderStatus } from '../../types/order'
+import { OrderItem, OrderStatus } from '../../types/order'
 import useAuthStore from '../../store/authStore'
 
 type Props = {
@@ -113,7 +113,8 @@ export default function InvoiceScreen({ navigation, route }: Props) {
 
   const stepIndex = getStepIndex(order.status)
   const statusInfo = STATUS_INFO[order.status] ?? STATUS_INFO.waiting_payment
-  const subtotal = order.order_items.reduce((s, i) => s + i.price * i.qty, 0)
+  const populatedItems = (order.order_items as any[]).filter((i): i is OrderItem => typeof i !== 'string')
+  const subtotal = populatedItems.reduce((s, i) => s + i.price * i.qty, 0)
   const addr = order.delivery_address
 
   return (
@@ -148,7 +149,7 @@ export default function InvoiceScreen({ navigation, route }: Props) {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={[styles.header, { backgroundColor: t.primary }]}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile', { initialTab: 'riwayat' })}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Riwayat Belanja</Text>
@@ -262,7 +263,7 @@ export default function InvoiceScreen({ navigation, route }: Props) {
           {/* Item Pesanan */}
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>ITEM PESANAN</Text>
-            {order.order_items.map((item) => (
+            {populatedItems.map((item) => (
               <View key={item._id} style={styles.itemRow}>
                 {item.image_url
                   ? <Image source={{ uri: getImageUrl(item.image_url) }} style={styles.itemImg} />

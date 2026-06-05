@@ -30,8 +30,9 @@ export interface Order {
   status: OrderStatus
   delivery_fee: number
   delivery_address: DeliveryAddressSnapshot
-  order_items: OrderItem[]
+  order_items: OrderItem[] | string[]
+  items_count?: number
   createdAt: string
   updatedAt: string
-  user: string
+  user: string | { _id: string; full_name: string; email: string }
 }
