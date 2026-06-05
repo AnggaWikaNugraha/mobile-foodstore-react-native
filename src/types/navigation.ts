@@ -9,6 +9,7 @@ export type MainStackParamList = {
   Profile: undefined
   Cart: undefined
   Checkout: undefined
+  Invoice: { orderId: string }
   Login: undefined
   Register: undefined
   GoogleAuth: undefined

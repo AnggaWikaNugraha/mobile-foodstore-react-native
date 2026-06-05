@@ -3,6 +3,7 @@ import { getItem } from './secureStorage'
 
 const api = axios.create({
   baseURL: 'https://foodstore-server-nu.vercel.app',
+  // baseURL: 'http://172.20.10.12:3000',
   timeout: 10000,
 })
 

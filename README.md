@@ -73,8 +73,20 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Step 1: Review item pesanan — hanya item yang `checked = true` dari cart
 - [x] Step 2: Pilih alamat pengiriman dari daftar saved addresses (dengan radio select)
 - [x] Step 3: Konfirmasi — ringkasan alamat, item, subtotal, ongkir (Rp 20.000), dan total pembayaran
-- [x] Buat order via API (`POST /orders`) — kirim `delivery_fee` + `delivery_address`
-- [x] Alert sukses + reset navigasi ke Home setelah order berhasil dibuat
+- [x] Buat order via `POST /api/orders` → langsung navigate ke InvoiceScreen
+
+**Invoice & Pembayaran**
+
+- [x] Invoice card — nomor invoice, status badge (Lunas), stepper 4 tahap (Pembayaran → Diproses → Dikirim → Diterima)
+- [x] Status banner per kondisi: Menunggu Pembayaran, Dikonfirmasi, Diproses, Dalam Pengiriman, Diterima, Gagal
+- [x] Tombol "Bayar Sekarang" saat status `waiting_payment`
+- [x] Midtrans Snap popup via WebView (inject Snap.js sandbox) — dipicu dari InvoiceScreen
+- [x] Callback Snap.js via `postMessage`: `success`, `pending`, `error`, `close`
+- [x] Verifikasi pembayaran via `GET /api/payments/verify/:order_id` setelah sukses
+- [x] Tombol "Konfirmasi Diterima" saat status `in_delivery`
+- [x] Tombol "Beri Rating" per item saat status `delivered`
+- [x] Info pengiriman (alamat), info pembayaran (nama + email user), item pesanan, ringkasan harga
+- [x] Auto-refetch status setiap 10 detik (sementara sebelum Pusher)
 
 **Profile**
 
@@ -96,16 +108,9 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
   - Butuh endpoint baru di backend: `POST /auth/google/mobile`
 - [ ] Alamat pengiriman (form tambah alamat + data wilayah Indonesia)
-- [ ] Pembayaran — Midtrans Snap
-  - Checkout → tombol "Bayar Sekarang" → buka Midtrans Snap (WebView)
-  - Setelah pembayaran sukses → redirect ke halaman Order Detail
-- [ ] Order history — "Riwayat Belanja" daftar semua order
-- [ ] Order detail — invoice number, status badge (Lunas/dll), info pengiriman, info pembayaran, item pesanan, subtotal + ongkir + total
-- [ ] Tracking status order realtime (Pusher)
-  - Stepper 4 tahap: Pembayaran → Diproses → Dikirim → Diterima
-  - Pesan status per tahap (misal: "Pembayaran Dikonfirmasi", "Pesanan Sedang Diproses", dst.)
-  - Tombol "Konfirmasi Diterima" muncul saat status Dikirim
-- [ ] Review produk — tombol "Beri Rating" per item setelah order selesai
+- [ ] Order history — "Riwayat Belanja" daftar semua order, bisa buka invoice dari sini
+- [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
+- [ ] Review produk — aksi tombol "Beri Rating" (form rating + komentar per item)
 - [ ] Wishlist
 - [ ] Notifikasi realtime (Pusher)
 - [ ] Product detail screen

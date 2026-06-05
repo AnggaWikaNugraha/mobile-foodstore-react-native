@@ -1,20 +1,16 @@
 import { useState } from 'react'
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Image, ActivityIndicator, Alert, Modal,
+  Image, ActivityIndicator, Alert,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { WebView, WebViewMessageEvent } from 'react-native-webview'
-import { buildSnapHtml } from '../../lib/snapHtml'
 
 import { useTheme } from '../../hooks/useTheme'
 import { useCart } from '../../hooks/useCart'
 import { useDeliveryAddresses } from '../../hooks/useDeliveryAddresses'
 import { useCreateOrder } from '../../hooks/useCreateOrder'
-import { useGetPaymentToken } from '../../hooks/useCreatePayment'
-import { useVerifyPayment } from '../../hooks/useVerifyPayment'
 import { getImageUrl } from '../../lib/utils'
 import { DeliveryAddress } from '../../types/address'
 import { MainStackParamList } from '../../types/navigation'
@@ -35,17 +31,9 @@ export default function CheckoutScreen({ navigation }: Props) {
   const [step, setStep] = useState<Step>(1)
   const [selectedAddress, setSelectedAddress] = useState<DeliveryAddress | null>(null)
 
-  const [snapToken, setSnapToken] = useState<string | null>(null)
-  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null)
-
   const { data: cart } = useCart()
   const { data: addresses, isLoading: loadingAddresses } = useDeliveryAddresses()
-
   const createOrder = useCreateOrder()
-  const getPaymentToken = useGetPaymentToken()
-  const verifyPayment = useVerifyPayment()
-
-  const isSubmitting = createOrder.isPending || getPaymentToken.isPending
 
   // Hanya item yang checked
   const checkedItems = (cart ?? []).filter(i => i.checked !== false)
@@ -59,62 +47,13 @@ export default function CheckoutScreen({ navigation }: Props) {
         delivery_fee: DELIVERY_FEE,
         delivery_address: selectedAddress._id,
       })
-      setCurrentOrderId(order._id)
-      const { snap_token } = await getPaymentToken.mutateAsync(order._id)
-      setSnapToken(snap_token)
+      navigation.replace('Invoice', { orderId: order._id })
     } catch {
       Alert.alert('Gagal', 'Gagal membuat pesanan, coba lagi')
     }
   }
 
-  const handlePaymentMessage = (event: WebViewMessageEvent) => {
-    try {
-      const { type } = JSON.parse(event.nativeEvent.data) as { type: string }
-      if (type === 'success' || type === 'pending') {
-        setSnapToken(null)
-        if (currentOrderId) verifyPayment.mutate(currentOrderId)
-        Alert.alert(
-          type === 'success' ? 'Pembayaran Berhasil!' : 'Menunggu Pembayaran',
-          type === 'success' ? 'Pesananmu sedang diproses.' : 'Selesaikan pembayaran sesuai instruksi.',
-          [{ text: 'OK', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }) }]
-        )
-      } else if (type === 'error') {
-        setSnapToken(null)
-        Alert.alert('Pembayaran Gagal', 'Terjadi kesalahan saat pembayaran.')
-      } else if (type === 'close') {
-        setSnapToken(null)
-      }
-    } catch { /* ignore malformed messages */ }
-  }
-
   return (
-    <>
-    <Modal visible={!!snapToken} animationType="slide" onRequestClose={() => setSnapToken(null)}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top']}>
-        <View style={[styles.header, { backgroundColor: t.primary }]}>
-          <TouchableOpacity onPress={() => setSnapToken(null)}>
-            <Ionicons name="close" size={22} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Pembayaran</Text>
-          <View style={{ width: 22 }} />
-        </View>
-        {snapToken && (
-          <WebView
-            source={{ html: buildSnapHtml(snapToken), baseUrl: 'https://app.sandbox.midtrans.com' }}
-            onMessage={handlePaymentMessage}
-            javaScriptEnabled
-            domStorageEnabled
-            startInLoadingState
-            renderLoading={() => (
-              <View style={styles.webviewLoading}>
-                <ActivityIndicator size="large" color={t.primary} />
-              </View>
-            )}
-          />
-        )}
-      </SafeAreaView>
-    </Modal>
-
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: t.primary }]}>
@@ -297,19 +236,18 @@ export default function CheckoutScreen({ navigation }: Props) {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={[styles.nextBtn, { backgroundColor: t.primary }, isSubmitting && { opacity: 0.6 }]}
-            disabled={isSubmitting}
+            style={[styles.nextBtn, { backgroundColor: t.primary }, createOrder.isPending && { opacity: 0.6 }]}
+            disabled={createOrder.isPending}
             onPress={handleOrder}
           >
-            {isSubmitting
+            {createOrder.isPending
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.nextBtnText}>💳 Bayar Sekarang</Text>
+              : <Text style={styles.nextBtnText}>Buat Pesanan</Text>
             }
           </TouchableOpacity>
         )}
       </View>
     </SafeAreaView>
-    </>
   )
 }
 
@@ -437,5 +375,4 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   nextBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
-  webviewLoading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 })

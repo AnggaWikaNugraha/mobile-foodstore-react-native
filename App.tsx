@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { View, ActivityIndicator } from 'react-native'
 
 import useAuthStore from './src/store/authStore'
+import { MainStackParamList } from './src/types/navigation'
 import LoginScreen from './src/screens/auth/LoginScreen'
 import RegisterScreen from './src/screens/auth/RegisterScreen'
 import GoogleAuthScreen from './src/screens/auth/GoogleAuthScreen'
@@ -12,8 +13,9 @@ import HomeScreen from './src/screens/main/HomeScreen'
 import ProfileScreen from './src/screens/main/ProfileScreen'
 import CartScreen from './src/screens/main/CartScreen'
 import CheckoutScreen from './src/screens/main/CheckoutScreen'
+import InvoiceScreen from './src/screens/main/InvoiceScreen'
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<MainStackParamList>()
 const queryClient = new QueryClient()
 
 function RootNavigator() {
@@ -40,6 +42,7 @@ function RootNavigator() {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
+      <Stack.Screen name="Invoice" component={InvoiceScreen} />
     </Stack.Navigator>
   )
 }
