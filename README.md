@@ -95,6 +95,14 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Biodata diri (nama, email, role, customer ID, login via Google)
 - [x] Ganti tema warna (Green Fern, Green Jade, Merah, Biru, Orange)
 
+**Riwayat Belanja**
+
+- [x] Tab "Riwayat Belanja" di Profile — daftar semua order dari `GET /api/orders`
+- [x] Setiap row: ikon, "Order #n", tanggal, total harga, badge status (Menunggu/Diproses/Dikirim/Lunas/Gagal)
+- [x] Tap order → navigate ke InvoiceScreen
+- [x] Banner "n pesanan menunggu pembayaran" — collapsible, expand tampilkan list order waiting
+- [x] Tap order di banner → langsung ke InvoiceScreen order tersebut
+
 **Tema**
 
 <img src="assets/screenshots/mobile - tema.png" width="200" />
@@ -108,7 +116,6 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
   - Butuh endpoint baru di backend: `POST /auth/google/mobile`
 - [ ] Alamat pengiriman (form tambah alamat + data wilayah Indonesia)
-- [ ] Order history — "Riwayat Belanja" daftar semua order, bisa buka invoice dari sini
 - [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
 - [ ] Review produk — aksi tombol "Beri Rating" (form rating + komentar per item)
 - [ ] Wishlist
