@@ -47,6 +47,8 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Filter tags (multi-select)
 - [x] Banner carousel
 - [x] Header dengan cart badge + user avatar
+- [x] Badge "Sisa n" di product card saat stok ≤ 5
+- [x] Disable tombol "+" di product card kalau qty di cart sudah mencapai stok
 
 **Cart**
 
@@ -54,12 +56,25 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 - [x] Tambah ke cart (guest → redirect login)
 - [x] Cart badge count di header (realtime)
-- [x] Loading spinner di cart icon saat PUT/GET
-- [x] CartScreen — checkbox per item, Pilih Semua, Hapus
-- [x] Update qty, hapus item
-- [x] Ringkasan belanja (subtotal hanya item yang checked + ongkir)
-- [x] Disable tombol "+" kalau qty sudah mencapai stok
 - [x] Cart icon loading saat mutasi berjalan
+- [x] Empty state "Keranjang kosong" saat cart tidak ada isi
+- [x] Checkbox per item + Pilih Semua
+- [x] Hapus item yang di-check via tombol "Hapus"
+- [x] Ikon trash per item — hapus satu item langsung
+- [x] Update qty; qty → 0 otomatis hapus item dari cart
+- [x] Subtotal per item tampil di kanan setiap card
+- [x] Card items disabled (opacity 0.6) saat mutasi berjalan
+- [x] Ringkasan belanja (subtotal + ongkir Rp 20.000 + total) — hanya tampil jika ada item yang di-check
+- [x] Tombol "Beli (n)" — hanya muncul jika ada item yang di-check, meneruskan hanya item `checked = true` ke Checkout
+
+**Checkout**
+
+- [x] 3-step checkout flow dengan stepper UI
+- [x] Step 1: Review item pesanan — hanya item yang `checked = true` dari cart
+- [x] Step 2: Pilih alamat pengiriman dari daftar saved addresses (dengan radio select)
+- [x] Step 3: Konfirmasi — ringkasan alamat, item, subtotal, ongkir (Rp 20.000), dan total pembayaran
+- [x] Buat order via API (`POST /orders`) — kirim `delivery_fee` + `delivery_address`
+- [x] Alert sukses + reset navigasi ke Home setelah order berhasil dibuat
 
 **Profile**
 
@@ -80,12 +95,17 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
   - Butuh endpoint baru di backend: `POST /auth/google/mobile`
-- [ ] Checkout — pilih alamat pengiriman, konfirmasi order
-- [ ] Alamat pengiriman (form + data wilayah Indonesia)
-- [ ] Order history + detail order
-- [ ] Tracking status order realtime (Pusher)
+- [ ] Alamat pengiriman (form tambah alamat + data wilayah Indonesia)
 - [ ] Pembayaran — Midtrans Snap
+  - Checkout → tombol "Bayar Sekarang" → buka Midtrans Snap (WebView)
+  - Setelah pembayaran sukses → redirect ke halaman Order Detail
+- [ ] Order history — "Riwayat Belanja" daftar semua order
+- [ ] Order detail — invoice number, status badge (Lunas/dll), info pengiriman, info pembayaran, item pesanan, subtotal + ongkir + total
+- [ ] Tracking status order realtime (Pusher)
+  - Stepper 4 tahap: Pembayaran → Diproses → Dikirim → Diterima
+  - Pesan status per tahap (misal: "Pembayaran Dikonfirmasi", "Pesanan Sedang Diproses", dst.)
+  - Tombol "Konfirmasi Diterima" muncul saat status Dikirim
+- [ ] Review produk — tombol "Beri Rating" per item setelah order selesai
 - [ ] Wishlist
-- [ ] Review produk
 - [ ] Notifikasi realtime (Pusher)
 - [ ] Product detail screen
