@@ -9,10 +9,13 @@ import useAuthStore from '../../store/authStore'
 import { useTheme, useThemeName, useSetTheme } from '../../hooks/useTheme'
 import { useOrders } from '../../hooks/useOrders'
 import { useWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
+import { useDeliveryAddresses, useDeleteAddress } from '../../hooks/useDeliveryAddresses'
+import { DeliveryAddress } from '../../types/address'
 import { ThemeName } from '../../constants/themes'
 import { MainStackParamList } from '../../types/navigation'
 import { Order, OrderStatus } from '../../types/order'
 import { getImageUrl } from '../../lib/utils'
+import AddressFormModal from '../../components/address/AddressFormModal'
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'Profile'>
@@ -73,6 +76,10 @@ export default function ProfileScreen({ navigation, route }: Props) {
 
   const { data: wishlistItems, isLoading: loadingWishlist } = useWishlist()
   const removeWishlist = useRemoveWishlist()
+
+  const { data: addresses = [], isLoading: loadingAddresses } = useDeliveryAddresses()
+  const deleteAddress = useDeleteAddress()
+  const [addressForm, setAddressForm] = useState<{ visible: boolean; editing: DeliveryAddress | null }>({ visible: false, editing: null })
 
   const initials = user?.full_name
     ? user.full_name.split(' ').slice(0, 2).map(n => n[0].toUpperCase()).join('')
@@ -163,9 +170,63 @@ export default function ProfileScreen({ navigation, route }: Props) {
           )}
 
           {activeTab === 'alamat' && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Alamat Pengiriman</Text>
-              <Text style={styles.cardSubtitle}>Coming soon</Text>
+            <View>
+              <View style={styles.card}>
+                <View style={styles.cardTitleRow}>
+                  <Text style={styles.cardTitle}>Alamat Pengiriman</Text>
+                  <TouchableOpacity
+                    style={[styles.addAddressBtn, { backgroundColor: t.primary }]}
+                    onPress={() => setAddressForm({ visible: true, editing: null })}
+                  >
+                    <Ionicons name="add" size={16} color="#fff" />
+                    <Text style={styles.addAddressBtnText}>Tambah</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {loadingAddresses && <ActivityIndicator color={t.primary} style={{ marginTop: 12 }} />}
+
+                {!loadingAddresses && addresses.length === 0 && (
+                  <Text style={[styles.cardSubtitle, { marginTop: 8 }]}>Belum ada alamat tersimpan.</Text>
+                )}
+
+                {addresses.map((addr, i) => (
+                  <View key={addr._id} style={[styles.addressRow, i === 0 && { borderTopWidth: 0 }]}>
+                    <View style={styles.addressIcon}>
+                      <Ionicons name="location-outline" size={18} color={t.primary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.addressNama}>{addr.nama}</Text>
+                      <Text style={[styles.addressLine, { color: t.textMuted }]}>
+                        {[addr.kelurahan, addr.kecamatan, addr.kabupaten, addr.provinsi].filter(Boolean).join(', ')}
+                      </Text>
+                      <Text style={[styles.addressDetail, { color: t.textMuted }]}>{addr.detail}</Text>
+                    </View>
+                    <View style={styles.addressActions}>
+                      <TouchableOpacity
+                        onPress={() => setAddressForm({ visible: true, editing: addr })}
+                        style={styles.addressActionBtn}
+                      >
+                        <Ionicons name="pencil-outline" size={16} color="#888" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => Alert.alert('Hapus Alamat', `Hapus "${addr.nama}"?`, [
+                          { text: 'Batal', style: 'cancel' },
+                          { text: 'Hapus', style: 'destructive', onPress: () => deleteAddress.mutate(addr._id) },
+                        ])}
+                        style={styles.addressActionBtn}
+                      >
+                        <Ionicons name="trash-outline" size={16} color="#ef4444" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </View>
+
+              <AddressFormModal
+                visible={addressForm.visible}
+                editing={addressForm.editing}
+                onClose={() => setAddressForm({ visible: false, editing: null })}
+              />
             </View>
           )}
 
@@ -501,4 +562,23 @@ const styles = StyleSheet.create({
   wishlistName: { fontSize: 13, fontWeight: '600', color: '#1a1a1a', marginBottom: 4 },
   wishlistPrice: { fontSize: 13, fontWeight: '700' },
   removeWishlist: { padding: 6 },
+  cardTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 },
+  addAddressBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6,
+  },
+  addAddressBtnText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  addressRow: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+    paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f5f5f5',
+  },
+  addressIcon: {
+    width: 36, height: 36, borderRadius: 8, backgroundColor: '#f0fdf4',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  addressNama: { fontSize: 14, fontWeight: '700', color: '#1a1a1a', marginBottom: 2 },
+  addressLine: { fontSize: 12, marginBottom: 2 },
+  addressDetail: { fontSize: 12 },
+  addressActions: { flexDirection: 'row', gap: 4 },
+  addressActionBtn: { padding: 6 },
 })

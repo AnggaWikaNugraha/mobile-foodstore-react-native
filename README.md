@@ -139,10 +139,18 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] List review per produk tampil di bawah setiap item (dari semua user) via `GET /api/reviews?product_id=X`
 - [x] Nama reviewer + bintang + komentar ditampilkan per review
 
+**Alamat Pengiriman**
+
+- [x] CRUD alamat di tab "Alamat Pengiriman" ProfileScreen
+- [x] List alamat tersimpan (nama, wilayah, detail) dengan tombol edit & hapus
+- [x] Form tambah / edit alamat via bottom sheet modal
+- [x] Cascading region picker: Provinsi → Kabupaten → Kecamatan → Kelurahan (dengan search)
+- [x] Data wilayah dari `GET /api/wilayah/provinsi|kabupaten|kecamatan|desa`
+- [x] Konfirmasi hapus alamat via Alert
+
 ### 🚧 Coming Soon
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
   - Butuh endpoint baru di backend: `POST /auth/google/mobile`
-- [ ] Alamat pengiriman (form tambah alamat + data wilayah Indonesia)
 - [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
 - [ ] Notifikasi realtime (Pusher)
