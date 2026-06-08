@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native'
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -8,21 +8,24 @@ import { RouteProp } from '@react-navigation/native'
 import useAuthStore from '../../store/authStore'
 import { useTheme, useThemeName, useSetTheme } from '../../hooks/useTheme'
 import { useOrders } from '../../hooks/useOrders'
+import { useWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
 import { ThemeName } from '../../constants/themes'
 import { MainStackParamList } from '../../types/navigation'
 import { Order, OrderStatus } from '../../types/order'
+import { getImageUrl } from '../../lib/utils'
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'Profile'>
   route: RouteProp<MainStackParamList, 'Profile'>
 }
 
-type Tab = 'biodata' | 'alamat' | 'riwayat' | 'keamanan'
+type Tab = 'biodata' | 'alamat' | 'riwayat' | 'wishlist' | 'keamanan'
 
 const TABS: { key: Tab; label: string; icon: string }[] = [
   { key: 'biodata', label: 'Biodata Diri', icon: 'person-outline' },
   { key: 'alamat', label: 'Alamat Pengiriman', icon: 'location-outline' },
   { key: 'riwayat', label: 'Riwayat Belanja', icon: 'receipt-outline' },
+  { key: 'wishlist', label: 'Favorit', icon: 'heart-outline' },
   { key: 'keamanan', label: 'Keamanan', icon: 'lock-closed-outline' },
 ]
 
@@ -67,6 +70,9 @@ export default function ProfileScreen({ navigation, route }: Props) {
   const orders = Array.isArray(rawOrders) ? rawOrders : []
   const waitingOrders = orders.filter(o => o.status === 'waiting_payment')
   const [bannerExpanded, setBannerExpanded] = useState(false)
+
+  const { data: wishlistItems, isLoading: loadingWishlist } = useWishlist()
+  const removeWishlist = useRemoveWishlist()
 
   const initials = user?.full_name
     ? user.full_name.split(' ').slice(0, 2).map(n => n[0].toUpperCase()).join('')
@@ -239,6 +245,42 @@ export default function ProfileScreen({ navigation, route }: Props) {
                       </>
                 }
               </View>
+            </View>
+          )}
+
+          {activeTab === 'wishlist' && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Favorit</Text>
+              {loadingWishlist ? (
+                <ActivityIndicator color={t.primary} style={{ marginTop: 16 }} />
+              ) : !wishlistItems?.length ? (
+                <View style={styles.emptyWishlist}>
+                  <Ionicons name="heart-outline" size={40} color="#ddd" />
+                  <Text style={styles.emptyWishlistText}>Belum ada produk favorit</Text>
+                </View>
+              ) : (
+                wishlistItems.map(item => (
+                  <View key={item._id} style={styles.wishlistRow}>
+                    <Image
+                      source={{ uri: getImageUrl(item.product.image_url) }}
+                      style={styles.wishlistThumb}
+                      resizeMode="cover"
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.wishlistName} numberOfLines={2}>{item.product.name}</Text>
+                      <Text style={[styles.wishlistPrice, { color: t.primary }]}>
+                        {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(item.product.price)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => removeWishlist.mutate(item.product._id)}
+                      style={styles.removeWishlist}
+                    >
+                      <Ionicons name="heart" size={22} color="#ef4444" />
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
             </View>
           )}
 
@@ -449,4 +491,14 @@ const styles = StyleSheet.create({
   orderTotal: { fontSize: 14, fontWeight: '700', color: '#1a1a1a' },
   statusBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
   statusBadgeText: { fontSize: 11, fontWeight: '700' },
+  emptyWishlist: { alignItems: 'center', paddingVertical: 32, gap: 10 },
+  emptyWishlistText: { fontSize: 14, color: '#aaa' },
+  wishlistRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f5f5f5',
+  },
+  wishlistThumb: { width: 60, height: 60, borderRadius: 8, backgroundColor: '#f4f4f4' },
+  wishlistName: { fontSize: 13, fontWeight: '600', color: '#1a1a1a', marginBottom: 4 },
+  wishlistPrice: { fontSize: 13, fontWeight: '700' },
+  removeWishlist: { padding: 6 },
 })

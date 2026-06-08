@@ -111,6 +111,15 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Token warna terpusat di `src/constants/themes.ts`
 - [x] Ganti tema dari Profile → tab Keamanan
 
+**Wishlist**
+
+- [x] Toggle wishlist dari product card (ikon hati merah/abu-abu)
+- [x] Wishlist disinkron via `GET /api/wishlists` — heart langsung update saat buka HomeScreen
+- [x] Tambah ke wishlist via `POST /api/wishlists { product_id }`
+- [x] Hapus dari wishlist via `DELETE /api/wishlists/:product_id`
+- [x] Tab "Favorit" di ProfileScreen — daftar produk favorit dengan thumbnail, nama, harga
+- [x] Hapus dari favorit langsung via tombol hati di tab Favorit
+
 ### 🚧 Coming Soon
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
@@ -118,6 +127,5 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [ ] Alamat pengiriman (form tambah alamat + data wilayah Indonesia)
 - [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
 - [ ] Review produk — aksi tombol "Beri Rating" (form rating + komentar per item)
-- [ ] Wishlist
 - [ ] Notifikasi realtime (Pusher)
 - [ ] Product detail screen

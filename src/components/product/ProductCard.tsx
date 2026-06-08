@@ -8,9 +8,12 @@ import { getImageUrl } from '../../lib/utils'
 interface Props {
   product: Product
   onPress?: () => void
+  isWishlisted?: boolean
+  onToggleWishlist?: () => void
+  wishlistLoading?: boolean
 }
 
-export default function ProductCard({ product, onPress }: Props) {
+export default function ProductCard({ product, onPress, isWishlisted, onToggleWishlist, wishlistLoading }: Props) {
   const t = useTheme()
   const { addToCart, isPending } = useAddToCart()
   const cartQty = useCartQty(product._id)
@@ -30,8 +33,11 @@ export default function ProductCard({ product, onPress }: Props) {
           </View>
         )}
 
-        <TouchableOpacity style={styles.wishlistButton}>
-          <Ionicons name="heart-outline" size={16} color="#aaa" />
+        <TouchableOpacity style={styles.wishlistButton} onPress={onToggleWishlist} disabled={wishlistLoading}>
+          {wishlistLoading
+            ? <ActivityIndicator size={14} color="#ef4444" />
+            : <Ionicons name={isWishlisted ? 'heart' : 'heart-outline'} size={16} color={isWishlisted ? '#ef4444' : '#aaa'} />
+          }
         </TouchableOpacity>
       </View>
 

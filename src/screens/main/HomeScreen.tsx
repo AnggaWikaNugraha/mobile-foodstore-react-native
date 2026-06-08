@@ -13,6 +13,7 @@ import { useCategories } from '../../hooks/useCategories'
 import { useTags } from '../../hooks/useTags'
 import { useTheme } from '../../hooks/useTheme'
 import useAuthStore from '../../store/authStore'
+import { useWishlist, useAddWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
 import ProductCard from '../../components/product/ProductCard'
 import Header from '../../components/ui/Header'
 import Banner from '../../components/ui/Banner'
@@ -48,6 +49,20 @@ export default function HomeScreen({ navigation }: Props) {
   const { data: categoriesData } = useCategories()
   const { data: tagsData } = useTags()
 
+  const { data: wishlistItems } = useWishlist()
+  const addWishlist = useAddWishlist()
+  const removeWishlist = useRemoveWishlist()
+
+  const wishlistedIds = new Set((wishlistItems ?? []).map(w => w.product._id))
+
+  const handleToggleWishlist = (productId: string) => {
+    if (wishlistedIds.has(productId)) {
+      removeWishlist.mutate(productId)
+    } else {
+      addWishlist.mutate(productId)
+    }
+  }
+
   const toggleTag = (tagName: string) => {
     setSelectedTags(prev =>
       prev.includes(tagName) ? prev.filter(t => t !== tagName) : [...prev, tagName]
@@ -67,7 +82,19 @@ export default function HomeScreen({ navigation }: Props) {
         data={productsData?.data}
         keyExtractor={(item) => item._id}
         numColumns={2}
-        renderItem={({ item }) => <ProductCard product={item} />}
+        renderItem={({ item }) => {
+          const wishlistLoading =
+            (addWishlist.isPending && addWishlist.variables === item._id) ||
+            (removeWishlist.isPending && removeWishlist.variables === item._id)
+          return (
+            <ProductCard
+              product={item}
+              isWishlisted={wishlistedIds.has(item._id)}
+              onToggleWishlist={() => handleToggleWishlist(item._id)}
+              wishlistLoading={wishlistLoading}
+            />
+          )
+        }}
         contentContainerStyle={styles.productList}
         onRefresh={refetch}
         refreshing={isLoading}
