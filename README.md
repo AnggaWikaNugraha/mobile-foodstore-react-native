@@ -120,6 +120,15 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Tab "Favorit" di ProfileScreen — daftar produk favorit dengan thumbnail, nama, harga
 - [x] Hapus dari favorit langsung via tombol hati di tab Favorit
 
+**Product Detail**
+
+- [x] Tap product card di Home → buka detail screen
+- [x] Tap item di tab Favorit → buka detail screen
+- [x] Gambar produk full-width, nama, harga, kategori, tags, deskripsi, stok
+- [x] Tombol "Tambah ke Keranjang" dengan loading state & disable saat stok habis / penuh
+- [x] Toggle wishlist (hati) di header detail screen dengan loading state
+- [x] Fetch via `GET /api/products?q=name` — filter by `_id` (tidak ada endpoint detail tersendiri)
+
 ### 🚧 Coming Soon
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
@@ -128,4 +137,3 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
 - [ ] Review produk — aksi tombol "Beri Rating" (form rating + komentar per item)
 - [ ] Notifikasi realtime (Pusher)
-- [ ] Product detail screen

@@ -14,6 +14,7 @@ import ProfileScreen from './src/screens/main/ProfileScreen'
 import CartScreen from './src/screens/main/CartScreen'
 import CheckoutScreen from './src/screens/main/CheckoutScreen'
 import InvoiceScreen from './src/screens/main/InvoiceScreen'
+import ProductDetailScreen from './src/screens/main/ProductDetailScreen'
 
 const Stack = createNativeStackNavigator<MainStackParamList>()
 const queryClient = new QueryClient()
@@ -43,6 +44,7 @@ function RootNavigator() {
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="Invoice" component={InvoiceScreen} />
+      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
     </Stack.Navigator>
   )
 }

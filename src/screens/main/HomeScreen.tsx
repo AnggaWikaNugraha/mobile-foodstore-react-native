@@ -89,6 +89,7 @@ export default function HomeScreen({ navigation }: Props) {
           return (
             <ProductCard
               product={item}
+              onPress={() => navigation.navigate('ProductDetail', { productId: item._id, name: item.name })}
               isWishlisted={wishlistedIds.has(item._id)}
               onToggleWishlist={() => handleToggleWishlist(item._id)}
               wishlistLoading={wishlistLoading}

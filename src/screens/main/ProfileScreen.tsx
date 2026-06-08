@@ -260,7 +260,7 @@ export default function ProfileScreen({ navigation, route }: Props) {
                 </View>
               ) : (
                 wishlistItems.map(item => (
-                  <View key={item._id} style={styles.wishlistRow}>
+                  <TouchableOpacity key={item._id} style={styles.wishlistRow} onPress={() => navigation.navigate('ProductDetail', { productId: item.product._id, name: item.product.name })}>
                     <Image
                       source={{ uri: getImageUrl(item.product.image_url) }}
                       style={styles.wishlistThumb}
@@ -278,7 +278,7 @@ export default function ProfileScreen({ navigation, route }: Props) {
                     >
                       <Ionicons name="heart" size={22} color="#ef4444" />
                     </TouchableOpacity>
-                  </View>
+                  </TouchableOpacity>
                 ))
               )}
             </View>
