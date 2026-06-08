@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native'
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Modal } from 'react-native'
+import * as ImagePicker from 'expo-image-picker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -9,6 +10,7 @@ import useAuthStore from '../../store/authStore'
 import { useTheme, useThemeName, useSetTheme } from '../../hooks/useTheme'
 import { useOrders } from '../../hooks/useOrders'
 import { useWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
+import { useUpdateAvatar } from '../../hooks/useUpdateAvatar'
 import { useDeliveryAddresses, useDeleteAddress } from '../../hooks/useDeliveryAddresses'
 import { DeliveryAddress } from '../../types/address'
 import { ThemeName } from '../../constants/themes'
@@ -63,11 +65,72 @@ const STATUS_BADGE: Record<OrderStatus, { label: string; color: string }> = {
 }
 
 export default function ProfileScreen({ navigation, route }: Props) {
-  const { user, logout } = useAuthStore()
+  const { user, logout, updateUser } = useAuthStore()
   const t = useTheme()
   const themeName = useThemeName()
   const setTheme = useSetTheme()
   const [activeTab, setActiveTab] = useState<Tab>(route.params?.initialTab ?? 'biodata')
+  const [avatarPreviewVisible, setAvatarPreviewVisible] = useState(false)
+
+  const updateAvatar = useUpdateAvatar()
+
+  const handleAvatarPress = () => {
+    if (user?.image_url) {
+      setAvatarPreviewVisible(true)
+      return
+    }
+    openPickerAlert()
+  }
+
+  const openPickerAlert = () => {
+    Alert.alert('Foto Profil', 'Pilih sumber foto', [
+      {
+        text: 'Kamera',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestCameraPermissionsAsync()
+          if (status !== 'granted') {
+            Alert.alert('Izin Ditolak', 'Izin kamera dibutuhkan untuk mengambil foto.')
+            return
+          }
+          const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          })
+          if (!result.canceled && result.assets[0]) uploadAvatar(result.assets[0].uri)
+        },
+      },
+      {
+        text: 'Galeri',
+        onPress: async () => {
+          const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
+          if (status !== 'granted') {
+            Alert.alert('Izin Ditolak', 'Izin galeri dibutuhkan untuk memilih foto.')
+            return
+          }
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ['images'],
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          })
+          if (!result.canceled && result.assets[0]) uploadAvatar(result.assets[0].uri)
+        },
+      },
+      { text: 'Batal', style: 'cancel' },
+    ])
+  }
+
+  const uploadAvatar = async (uri: string) => {
+    try {
+      const result = await updateAvatar.mutateAsync(uri)
+      updateUser({ image_url: result.image_url })
+    } catch (err: any) {
+      const msg = err?.response?.data?.message ?? err?.message ?? 'Gagal upload foto'
+      Alert.alert('Gagal', msg)
+    }
+  }
 
   const { data: rawOrders, isLoading: loadingOrders } = useOrders()
   const orders = Array.isArray(rawOrders) ? rawOrders : []
@@ -94,6 +157,25 @@ export default function ProfileScreen({ navigation, route }: Props) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <Modal visible={avatarPreviewVisible} transparent animationType="fade" onRequestClose={() => setAvatarPreviewVisible(false)}>
+        <View style={styles.previewOverlay}>
+          <TouchableOpacity style={styles.previewClose} onPress={() => setAvatarPreviewVisible(false)}>
+            <Ionicons name="close" size={26} color="#fff" />
+          </TouchableOpacity>
+
+          {user?.image_url && (
+            <Image source={{ uri: user.image_url }} style={styles.previewImage} resizeMode="contain" />
+          )}
+
+          <TouchableOpacity
+            style={styles.previewChangeBtn}
+            onPress={() => { setAvatarPreviewVisible(false); setTimeout(openPickerAlert, 300) }}
+          >
+            <Ionicons name="camera-outline" size={18} color="#fff" />
+            <Text style={styles.previewChangeBtnText}>Ganti Foto</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: t.primary }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -106,9 +188,21 @@ export default function ProfileScreen({ navigation, route }: Props) {
       <ScrollView>
         {/* Hero */}
         <View style={[styles.hero, { backgroundColor: t.primary }]}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials}</Text>
-          </View>
+          <TouchableOpacity style={styles.avatarWrapper} onPress={handleAvatarPress} disabled={updateAvatar.isPending}>
+            {user?.image_url ? (
+              <Image source={{ uri: user.image_url }} style={styles.avatarImage} resizeMode="cover" />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{initials}</Text>
+              </View>
+            )}
+            <View style={[styles.avatarEditBadge, { backgroundColor: t.primary }]}>
+              {updateAvatar.isPending
+                ? <ActivityIndicator size={11} color="#fff" />
+                : <Ionicons name="camera" size={13} color="#fff" />
+              }
+            </View>
+          </TouchableOpacity>
           <Text style={styles.heroName}>{user?.full_name}</Text>
           <Text style={styles.heroEmail}>{user?.email}</Text>
           {user?.customer_no && (
@@ -424,16 +518,40 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
     paddingTop: 8,
   },
+  avatarWrapper: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 10,
+  },
   avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: 'rgba(255,255,255,0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.5)',
-    marginBottom: 10,
+  },
+  avatarImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
   },
   avatarText: { color: '#fff', fontSize: 26, fontWeight: '700' },
   heroName: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 2 },
@@ -581,4 +699,36 @@ const styles = StyleSheet.create({
   addressDetail: { fontSize: 12 },
   addressActions: { flexDirection: 'row', gap: 4 },
   addressActionBtn: { padding: 6 },
+  previewOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.92)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewClose: {
+    position: 'absolute',
+    top: 52,
+    right: 20,
+    padding: 8,
+    zIndex: 10,
+  },
+  previewImage: {
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+  },
+  previewChangeBtn: {
+    position: 'absolute',
+    bottom: 60,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  previewChangeBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
 })

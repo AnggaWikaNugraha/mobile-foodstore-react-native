@@ -22,7 +22,14 @@
     },
     "plugins": [
       "expo-secure-store",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Izin untuk memilih foto dari galeri.",
+          "cameraPermission": "Izin untuk mengambil foto profil."
+        }
+      ]
     ]
   }
 }

@@ -10,6 +10,7 @@ interface User {
   email_verified?: boolean
   google_id?: string
   customer_no?: number
+  image_url?: string
 }
 
 interface AuthState {
@@ -19,6 +20,7 @@ interface AuthState {
   setAuth: (user: User, token: string) => Promise<void>
   loadAuth: () => Promise<void>
   logout: () => Promise<void>
+  updateUser: (updates: Partial<User>) => void
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -53,6 +55,9 @@ const useAuthStore = create<AuthState>((set) => ({
     await deleteItem('token')
     set({ user: null, token: null })
   },
+
+  updateUser: (updates) =>
+    set(s => ({ user: s.user ? { ...s.user, ...updates } : null })),
 }))
 
 export default useAuthStore

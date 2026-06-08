@@ -148,9 +148,35 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Data wilayah dari `GET /api/wilayah/provinsi|kabupaten|kecamatan|desa`
 - [x] Konfirmasi hapus alamat via Alert
 
+**Profile & Media**
+
+- [x] Image picker untuk avatar profile — `expo-image-picker`, kamera + galeri, upload ke `PUT /api/users/avatar` (Cloudinary), foto langsung update di hero section
+
 ### 🚧 Coming Soon
 
-- [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
-  - Butuh endpoint baru di backend: `POST /auth/google/mobile`
+**Realtime & Notifikasi**
+
 - [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
-- [ ] Notifikasi realtime (Pusher)
+- [ ] Notifikasi realtime (Pusher) — subscribe channel user, tampil toast/badge saat ada event baru
+- [ ] Expo Push Notifications — notif OS-level saat status order berubah, token management, background handler
+
+**Auth**
+
+- [ ] Google Sign-In native (`@react-native-google-signin/google-signin`) — OAuth native flow, butuh endpoint `POST /auth/google/mobile` di backend
+- [ ] Biometric auth (`expo-local-authentication`) — fingerprint / Face ID sebelum checkout atau buka app
+
+**Product & UX**
+
+- [ ] `useInfiniteQuery` + infinite scroll — ganti `limit:20` statis ke pagination scroll; pattern penting di industri
+- [ ] Skeleton loading — shimmer placeholder saat fetch, gantikan spinner global
+- [ ] Average rating di ProductCard & DetailScreen — data `avg_rating` sudah ada di API, tampilkan bintang
+- [ ] Search history — simpan pencarian terakhir ke `AsyncStorage`, tampil sebagai quick-suggestion
+
+**Tampilan**
+
+- [ ] Dark mode — theme system sudah ada, tambah variant `dark` per token warna
+
+**Infrastruktur**
+
+- [ ] Deep linking — buka InvoiceScreen / ProductDetailScreen langsung dari notifikasi atau external link
+- [ ] Offline banner (`@react-native-community/netinfo`) — deteksi koneksi hilang, tampil banner, retry otomatis saat online kembali

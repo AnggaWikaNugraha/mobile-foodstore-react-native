@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useIsMutating } from '@tanstack/react-query'
 import useAuthStore from '../../store/authStore'
@@ -48,9 +48,13 @@ export default function Header({ onCartPress, onLoginPress, onRegisterPress, onP
 
         {token && user ? (
           <TouchableOpacity style={styles.profileContainer} onPress={onProfilePress}>
-            <View style={[styles.avatar, { borderColor: 'rgba(255,255,255,0.6)', backgroundColor: 'rgba(255,255,255,0.25)' }]}>
-              <Text style={[styles.avatarText, { color: t.white }]}>{initials}</Text>
-            </View>
+            {user?.image_url ? (
+              <Image source={{ uri: user.image_url }} style={styles.avatarImage} />
+            ) : (
+              <View style={[styles.avatar, { borderColor: 'rgba(255,255,255,0.6)', backgroundColor: 'rgba(255,255,255,0.25)' }]}>
+                <Text style={[styles.avatarText, { color: t.white }]}>{initials}</Text>
+              </View>
+            )}
             <Text style={[styles.userName, { color: t.white }]} numberOfLines={1}>{firstName}</Text>
           </TouchableOpacity>
         ) : (
@@ -120,6 +124,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1.5,
+  },
+  avatarImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.6)',
   },
   avatarText: {
     fontSize: 12,
