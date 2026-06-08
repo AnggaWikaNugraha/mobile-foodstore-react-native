@@ -8,6 +8,7 @@ import { MainStackParamList } from '../../types/navigation'
 import { useProduct } from '../../hooks/useProduct'
 import { useAddToCart, useCartQty } from '../../hooks/useCart'
 import { useWishlist, useAddWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
+import { useReviews } from '../../hooks/useReviews'
 import { useTheme } from '../../hooks/useTheme'
 import { getImageUrl } from '../../lib/utils'
 
@@ -30,6 +31,8 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
   const { data: wishlistItems } = useWishlist()
   const addWishlist = useAddWishlist()
   const removeWishlist = useRemoveWishlist()
+
+  const { data: reviews, isLoading: loadingReviews } = useReviews({ product_id: productId })
 
   const isWishlisted = (wishlistItems ?? []).some(w => w.product._id === productId)
 
@@ -143,6 +146,42 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
             </View>
           )}
         </View>
+
+        {/* Reviews */}
+        <View style={styles.card}>
+          <View style={styles.reviewHeader}>
+            <Ionicons name="star" size={16} color="#f59e0b" />
+            <Text style={styles.reviewTitle}>Ulasan Pembeli</Text>
+            {!!reviews?.length && (
+              <Text style={[styles.reviewCount, { color: t.textMuted }]}>{reviews.length} ulasan</Text>
+            )}
+          </View>
+
+          {loadingReviews && <ActivityIndicator color={t.primary} style={{ marginTop: 12 }} />}
+
+          {!loadingReviews && !reviews?.length && (
+            <Text style={styles.noReview}>Belum ada ulasan untuk produk ini.</Text>
+          )}
+
+          {reviews?.map(r => (
+            <View key={r._id} style={styles.reviewRow}>
+              <View style={styles.reviewMeta}>
+                <View style={styles.reviewStars}>
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <Ionicons key={s} name={s <= r.rating ? 'star' : 'star-outline'} size={12} color="#f59e0b" />
+                  ))}
+                </View>
+                <Text style={styles.reviewUser}>
+                  {typeof r.user === 'string' ? 'User' : r.user.full_name}
+                </Text>
+                <Text style={[styles.reviewDate, { color: t.textMuted }]}>
+                  {new Date(r.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </Text>
+              </View>
+              <Text style={styles.reviewComment}>{r.comment}</Text>
+            </View>
+          ))}
+        </View>
       </ScrollView>
 
       {/* Add to cart */}
@@ -206,4 +245,16 @@ const styles = StyleSheet.create({
     borderRadius: 12, paddingVertical: 14, gap: 8,
   },
   cartBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  reviewTitle: { fontSize: 15, fontWeight: '700', color: '#1a1a1a', flex: 1 },
+  reviewCount: { fontSize: 12 },
+  noReview: { fontSize: 13, color: '#aaa', marginTop: 4 },
+  reviewRow: {
+    paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f5f5f5', gap: 4,
+  },
+  reviewMeta: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  reviewStars: { flexDirection: 'row', gap: 2 },
+  reviewUser: { fontSize: 13, fontWeight: '700', color: '#1a1a1a', flex: 1 },
+  reviewDate: { fontSize: 11 },
+  reviewComment: { fontSize: 13, color: '#555', lineHeight: 20 },
 })

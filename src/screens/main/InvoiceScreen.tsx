@@ -14,11 +14,13 @@ import { useOrder } from '../../hooks/useOrder'
 import { useGetPaymentToken } from '../../hooks/useCreatePayment'
 import { useVerifyPayment } from '../../hooks/useVerifyPayment'
 import { useConfirmDelivery } from '../../hooks/useConfirmDelivery'
+import { useReviews } from '../../hooks/useReviews'
 import { buildSnapHtml } from '../../lib/snapHtml'
 import { getImageUrl } from '../../lib/utils'
 import { MainStackParamList } from '../../types/navigation'
 import { OrderItem, OrderStatus } from '../../types/order'
 import useAuthStore from '../../store/authStore'
+import ReviewModal from '../../components/order/ReviewModal'
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'Invoice'>
@@ -64,6 +66,23 @@ export default function InvoiceScreen({ navigation, route }: Props) {
   const getPaymentToken = useGetPaymentToken()
   const verifyPayment = useVerifyPayment()
   const confirmDelivery = useConfirmDelivery()
+
+  const { data: orderReviews } = useReviews({ order_id: orderId })
+  const reviewedProductIds = new Set(
+    (orderReviews ?? [])
+      .filter(r => typeof r.user !== 'string' && r.user._id === user?._id)
+      .map(r => r.product_id)
+      .filter(Boolean) as string[]
+  )
+  const [submittedProductIds, setSubmittedProductIds] = useState<Set<string>>(new Set())
+  const [reviewTarget, setReviewTarget] = useState<{ productId: string; productName: string } | null>(null)
+
+  const isReviewed = (productId: string) =>
+    reviewedProductIds.has(productId) || submittedProductIds.has(productId)
+
+  const handleReviewSuccess = (productId: string) => {
+    setSubmittedProductIds(prev => new Set([...prev, productId]))
+  }
 
   const handlePayNow = async () => {
     try {
@@ -264,23 +283,29 @@ export default function InvoiceScreen({ navigation, route }: Props) {
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>ITEM PESANAN</Text>
             {populatedItems.map((item) => (
-              <View key={item._id} style={styles.itemRow}>
-                {item.image_url
-                  ? <Image source={{ uri: getImageUrl(item.image_url) }} style={styles.itemImg} />
-                  : <View style={[styles.itemImg, { backgroundColor: '#f0f0f0' }]} />
-                }
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.itemName}>{item.name}</Text>
-                  <Text style={[styles.itemMeta, { color: t.textMuted }]}>
-                    @ {formatPrice(item.price)} x {item.qty}
-                  </Text>
+              <View key={item._id}>
+                <View style={styles.itemRow}>
+                  {item.image_url
+                    ? <Image source={{ uri: getImageUrl(item.image_url) }} style={styles.itemImg} />
+                    : <View style={[styles.itemImg, { backgroundColor: '#f0f0f0' }]} />
+                  }
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.itemName}>{item.name}</Text>
+                    <Text style={[styles.itemMeta, { color: t.textMuted }]}>
+                      @ {formatPrice(item.price)} x {item.qty}
+                    </Text>
+                  </View>
+                  <Text style={[styles.itemPrice, { color: t.text }]}>{formatPrice(item.price * item.qty)}</Text>
+                  {order.status === 'delivered' && !isReviewed(item._id) && (
+                    <TouchableOpacity
+                      style={[styles.ratingBtn, { borderColor: t.primary }]}
+                      onPress={() => setReviewTarget({ productId: item._id, productName: item.name })}
+                    >
+                      <Text style={[styles.ratingBtnText, { color: t.primary }]}>Beri Rating</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
-                <Text style={[styles.itemPrice, { color: t.text }]}>{formatPrice(item.price * item.qty)}</Text>
-                {(order.status === 'delivered') && (
-                  <TouchableOpacity style={[styles.ratingBtn, { borderColor: t.primary }]}>
-                    <Text style={[styles.ratingBtnText, { color: t.primary }]}>Beri Rating</Text>
-                  </TouchableOpacity>
-                )}
+                {order.status === 'delivered' && <ProductReviewList productId={item._id} />}
               </View>
             ))}
           </View>
@@ -302,9 +327,53 @@ export default function InvoiceScreen({ navigation, route }: Props) {
           </View>
         </ScrollView>
       </SafeAreaView>
+
+      {reviewTarget && (
+        <ReviewModal
+          visible={!!reviewTarget}
+          productId={reviewTarget.productId}
+          productName={reviewTarget.productName}
+          orderId={orderId}
+          onClose={() => setReviewTarget(null)}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </>
   )
 }
+
+function ProductReviewList({ productId }: { productId: string }) {
+  const { data: reviews, isLoading } = useReviews({ product_id: productId })
+
+  if (isLoading) return <ActivityIndicator size={12} style={{ marginVertical: 4 }} />
+  if (!reviews?.length) return null
+
+  return (
+    <View style={reviewListStyles.container}>
+      {reviews.map(r => (
+        <View key={r._id} style={reviewListStyles.row}>
+          <View style={reviewListStyles.stars}>
+            {[1, 2, 3, 4, 5].map(s => (
+              <Ionicons key={s} name={s <= r.rating ? 'star' : 'star-outline'} size={11} color="#f59e0b" />
+            ))}
+          </View>
+          <Text style={reviewListStyles.userName}>
+            {typeof r.user === 'string' ? 'User' : r.user.full_name}
+          </Text>
+          <Text style={reviewListStyles.comment}>{r.comment}</Text>
+        </View>
+      ))}
+    </View>
+  )
+}
+
+const reviewListStyles = StyleSheet.create({
+  container: { paddingHorizontal: 4, paddingBottom: 8, gap: 8 },
+  row: { backgroundColor: '#f9fafb', borderRadius: 8, padding: 10, gap: 3 },
+  stars: { flexDirection: 'row', gap: 2 },
+  userName: { fontSize: 12, fontWeight: '700', color: '#374151' },
+  comment: { fontSize: 12, color: '#555', lineHeight: 18 },
+})
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4f4f4' },
@@ -383,6 +452,11 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4,
   },
   ratingBtnText: { fontSize: 11, fontWeight: '600' },
+  reviewedBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    backgroundColor: '#fef9c3', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4,
+  },
+  reviewedText: { fontSize: 11, fontWeight: '600', color: '#b45309' },
 
   // Price summary
   priceSection: {},

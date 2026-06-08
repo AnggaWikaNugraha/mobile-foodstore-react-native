@@ -129,11 +129,20 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Toggle wishlist (hati) di header detail screen dengan loading state
 - [x] Fetch via `GET /api/products?q=name` — filter by `_id` (tidak ada endpoint detail tersendiri)
 
+**Review Produk**
+
+- [x] Tombol "Beri Rating" per item di InvoiceScreen saat status `delivered`
+- [x] Bottom sheet modal: star rating 1–5 (tap), kolom komentar, label rating (Sangat Buruk–Sangat Bagus)
+- [x] Submit via `POST /api/reviews { product_id, order_id, rating, comment }`
+- [x] Error inline di modal (kotak merah) — termasuk pesan duplikat dari backend
+- [x] Tombol "Beri Rating" hilang setelah berhasil submit atau terdeteksi sudah pernah diulas
+- [x] List review per produk tampil di bawah setiap item (dari semua user) via `GET /api/reviews?product_id=X`
+- [x] Nama reviewer + bintang + komentar ditampilkan per review
+
 ### 🚧 Coming Soon
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`)
   - Butuh endpoint baru di backend: `POST /auth/google/mobile`
 - [ ] Alamat pengiriman (form tambah alamat + data wilayah Indonesia)
 - [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
-- [ ] Review produk — aksi tombol "Beri Rating" (form rating + komentar per item)
 - [ ] Notifikasi realtime (Pusher)
