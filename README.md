@@ -152,6 +152,11 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 - [x] Image picker untuk avatar profile — `expo-image-picker`, kamera + galeri, upload ke `PUT /api/users/avatar` (Cloudinary), foto langsung update di hero section
 
+
+**Product & UX**
+
+- [x] `useInfiniteQuery` + infinite scroll — `GET /api/products` (auto-load via `onEndReached` di FlatList) + `GET /api/orders` (auto-load via `onScroll` di ScrollView); `limit:5`, `skip` per page, `getNextPageParam` dari `count`
+
 ### 🚧 Coming Soon
 
 **Realtime & Notifikasi**
@@ -167,7 +172,6 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Product & UX**
 
-- [ ] `useInfiniteQuery` + infinite scroll — ganti `limit:20` statis ke pagination scroll; pattern penting di industri
 - [ ] Skeleton loading — shimmer placeholder saat fetch, gantikan spinner global
 - [ ] Average rating di ProductCard & DetailScreen — data `avg_rating` sudah ada di API, tampilkan bintang
 - [ ] Search history — simpan pencarian terakhir ke `AsyncStorage`, tampil sebagai quick-suggestion

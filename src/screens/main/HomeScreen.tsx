@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { useProducts } from '../../hooks/useProducts'
+import { useInfiniteProducts } from '../../hooks/useProducts'
 import { useCategories } from '../../hooks/useCategories'
 import { useTags } from '../../hooks/useTags'
 import { useTheme } from '../../hooks/useTheme'
@@ -39,12 +39,21 @@ export default function HomeScreen({ navigation }: Props) {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
-  const { data: productsData, isLoading, refetch } = useProducts({
+  const {
+    data: productsInfinite,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+  } = useInfiniteProducts({
     q: debouncedSearch || undefined,
     category: selectedCategory || undefined,
     tags: selectedTags.length > 0 ? selectedTags : undefined,
-    limit: 20,
   })
+
+  const products = productsInfinite?.pages.flatMap(p => p.data) ?? []
+  const totalCount = productsInfinite?.pages[0]?.count ?? 0
 
   const { data: categoriesData } = useCategories()
   const { data: tagsData } = useTags()
@@ -79,7 +88,7 @@ export default function HomeScreen({ navigation }: Props) {
       />
 
       <FlatList
-        data={productsData?.data}
+        data={products}
         keyExtractor={(item) => item._id}
         numColumns={2}
         renderItem={({ item }) => {
@@ -99,6 +108,15 @@ export default function HomeScreen({ navigation }: Props) {
         contentContainerStyle={styles.productList}
         onRefresh={refetch}
         refreshing={isLoading}
+        onEndReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage() }}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={styles.footerLoader}>
+              <ActivityIndicator size="small" color={t.primary} />
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           !isLoading ? (
             <View style={styles.centered}>
@@ -189,8 +207,8 @@ export default function HomeScreen({ navigation }: Props) {
             )}
 
             {/* Count */}
-            {productsData?.count !== undefined && (
-              <Text style={styles.countText}>{productsData.count} produk ditemukan</Text>
+            {totalCount > 0 && (
+              <Text style={styles.countText}>{totalCount} produk ditemukan</Text>
             )}
 
             {isLoading && (
@@ -314,5 +332,9 @@ const styles = StyleSheet.create({
     color: '#888',
     marginHorizontal: 16,
     marginBottom: 8,
+  },
+  footerLoader: {
+    paddingVertical: 16,
+    alignItems: 'center',
   },
 })

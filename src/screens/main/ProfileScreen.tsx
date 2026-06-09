@@ -8,7 +8,7 @@ import { RouteProp } from '@react-navigation/native'
 
 import useAuthStore from '../../store/authStore'
 import { useTheme, useThemeName, useSetTheme } from '../../hooks/useTheme'
-import { useOrders } from '../../hooks/useOrders'
+import { useInfiniteOrders } from '../../hooks/useOrders'
 import { useWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
 import { useUpdateAvatar } from '../../hooks/useUpdateAvatar'
 import { useDeliveryAddresses, useDeleteAddress } from '../../hooks/useDeliveryAddresses'
@@ -132,8 +132,15 @@ export default function ProfileScreen({ navigation, route }: Props) {
     }
   }
 
-  const { data: rawOrders, isLoading: loadingOrders } = useOrders()
-  const orders = Array.isArray(rawOrders) ? rawOrders : []
+  const {
+    data: ordersInfinite,
+    isLoading: loadingOrders,
+    isFetchingNextPage: loadingMoreOrders,
+    hasNextPage: hasMoreOrders,
+    fetchNextPage: fetchMoreOrders,
+  } = useInfiniteOrders()
+  const orders = ordersInfinite?.pages.flatMap(p => p.data) ?? []
+  const totalOrderCount = ordersInfinite?.pages[0]?.count ?? 0
   const waitingOrders = orders.filter(o => o.status === 'waiting_payment')
   const [bannerExpanded, setBannerExpanded] = useState(false)
 
@@ -147,6 +154,14 @@ export default function ProfileScreen({ navigation, route }: Props) {
   const initials = user?.full_name
     ? user.full_name.split(' ').slice(0, 2).map(n => n[0].toUpperCase()).join('')
     : '?'
+
+  const handleScroll = (e: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent
+    const nearBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 300
+    if (nearBottom && activeTab === 'riwayat' && hasMoreOrders && !loadingMoreOrders) {
+      fetchMoreOrders()
+    }
+  }
 
   const handleLogout = () => {
     Alert.alert('Logout', 'Yakin ingin keluar?', [
@@ -185,7 +200,7 @@ export default function ProfileScreen({ navigation, route }: Props) {
         <View style={{ width: 22 }} />
       </View>
 
-      <ScrollView>
+      <ScrollView onScroll={handleScroll} scrollEventThrottle={200}>
         {/* Hero */}
         <View style={[styles.hero, { backgroundColor: t.primary }]}>
           <TouchableOpacity style={styles.avatarWrapper} onPress={handleAvatarPress} disabled={updateAvatar.isPending}>
@@ -368,9 +383,10 @@ export default function ProfileScreen({ navigation, route }: Props) {
                   : !orders?.length
                     ? <Text style={[styles.cardSubtitle, { marginTop: 8 }]}>Belum ada transaksi.</Text>
                     : <>
-                        <Text style={styles.cardSubtitle}>{orders.length} transaksi tercatat</Text>
+                        <Text style={styles.cardSubtitle}>{totalOrderCount} transaksi tercatat</Text>
                         {orders.map((order) => {
-                          const badge = STATUS_BADGE[order.status]
+                          const badge = STATUS_BADGE[order.status as keyof typeof STATUS_BADGE]
+                          if (!badge) return null
                           return (
                             <TouchableOpacity
                               key={order._id}
@@ -397,6 +413,11 @@ export default function ProfileScreen({ navigation, route }: Props) {
                             </TouchableOpacity>
                           )
                         })}
+                        {loadingMoreOrders && (
+                          <View style={styles.loadMoreSpinner}>
+                            <ActivityIndicator size="small" color={t.primary} />
+                          </View>
+                        )}
                       </>
                 }
               </View>
@@ -731,4 +752,5 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.3)',
   },
   previewChangeBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
+  loadMoreSpinner: { paddingVertical: 16, alignItems: 'center' },
 })
