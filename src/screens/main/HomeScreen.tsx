@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { useDebounce } from 'use-debounce'
 import {
   View, Text, TextInput, FlatList, TouchableOpacity,
-  StyleSheet, ActivityIndicator, ScrollView,
+  StyleSheet, ActivityIndicator, ScrollView, Keyboard,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { useInfiniteProducts } from '../../hooks/useProducts'
+import { useSearchHistory } from '../../hooks/useSearchHistory'
 import { useCategories } from '../../hooks/useCategories'
 import { useTags } from '../../hooks/useTags'
 import { useTheme } from '../../hooks/useTheme'
@@ -37,8 +38,11 @@ export default function HomeScreen({ navigation }: Props) {
   const token = useAuthStore((s) => s.token)
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounce(search, 500)
+  const [searchFocused, setSearchFocused] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+
+  const { history, addSearch, removeSearch, clearHistory } = useSearchHistory()
 
   const {
     data: productsInfinite,
@@ -106,6 +110,7 @@ export default function HomeScreen({ navigation }: Props) {
             />
           )
         }}
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.productList}
         onRefresh={refetch}
         refreshing={isLoading}
@@ -138,8 +143,42 @@ export default function HomeScreen({ navigation }: Props) {
                 value={search}
                 onChangeText={setSearch}
                 returnKeyType="search"
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
+                onSubmitEditing={() => { if (search.trim()) addSearch(search.trim()) }}
               />
+              {!!search && (
+                <TouchableOpacity onPress={() => setSearch('')}>
+                  <Ionicons name="close-circle" size={18} color="#aaa" />
+                </TouchableOpacity>
+              )}
             </View>
+
+            {/* Search History */}
+            {searchFocused && !search && history.length > 0 && (
+              <View style={styles.historyPanel}>
+                <View style={styles.historyHeader}>
+                  <Text style={styles.historyTitle}>Pencarian Terakhir</Text>
+                  <TouchableOpacity onPress={clearHistory}>
+                    <Text style={styles.historyClear}>Hapus Semua</Text>
+                  </TouchableOpacity>
+                </View>
+                {history.map(term => (
+                  <View key={term} style={styles.historyRow}>
+                    <TouchableOpacity
+                      style={styles.historyItem}
+                      onPress={() => { Keyboard.dismiss(); setSearch(term); addSearch(term) }}
+                    >
+                      <Ionicons name="time-outline" size={15} color="#aaa" />
+                      <Text style={styles.historyText}>{term}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => removeSearch(term)} hitSlop={8}>
+                      <Ionicons name="close" size={15} color="#ccc" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
 
             {/* Kategori */}
             <View style={styles.section}>
@@ -346,4 +385,34 @@ const styles = StyleSheet.create({
   skeletonRow: {
     flexDirection: 'row',
   },
+  historyPanel: {
+    backgroundColor: '#fff',
+    marginHorizontal: 16,
+    marginBottom: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    overflow: 'hidden',
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f5f5f5',
+  },
+  historyTitle: { fontSize: 12, fontWeight: '700', color: '#888' },
+  historyClear: { fontSize: 12, color: '#ef4444' },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f9f9f9',
+  },
+  historyItem: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  historyText: { fontSize: 14, color: '#1a1a1a' },
 })

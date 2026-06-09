@@ -158,6 +158,7 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] `useInfiniteQuery` + infinite scroll — `GET /api/products` (auto-load via `onEndReached` di FlatList) + `GET /api/orders` (auto-load via `onScroll` di ScrollView); `limit:5`, `skip` per page, `getNextPageParam` dari `count`
 - [x] Skeleton loading — shimmer placeholder (`Animated` + `expo-linear-gradient`) di HomeScreen (product grid 6 card), ProductDetailScreen (hero + konten), ProfileScreen Riwayat tab (4 row)
 - [x] Average rating di ProductCard (⭐ 4.2 · count) dan ProductDetailScreen (5 bintang + avg + jumlah ulasan) dari field `avg_rating` + `review_count`
+- [x] Search history — simpan pencarian terakhir ke `AsyncStorage` (maks 8), tampil saat search fokus + kosong; tap untuk isi ulang, hapus per item, hapus semua
 
 ### 🚧 Coming Soon
 
@@ -171,10 +172,6 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`) — OAuth native flow, butuh endpoint `POST /auth/google/mobile` di backend
 - [ ] Biometric auth (`expo-local-authentication`) — fingerprint / Face ID sebelum checkout atau buka app
-
-**Product & UX**
-
-- [ ] Search history — simpan pencarian terakhir ke `AsyncStorage`, tampil sebagai quick-suggestion
 
 **Tampilan**
 
