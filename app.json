@@ -23,6 +23,7 @@
     "plugins": [
       "expo-secure-store",
       "@react-native-google-signin/google-signin",
+      "expo-local-authentication",
       [
         "expo-image-picker",
         {

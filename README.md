@@ -34,6 +34,7 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Auto login — cek token saat buka app, redirect otomatis
 - [x] Logout
 - [x] Guest mode — beranda bisa diakses tanpa login
+- [x] Biometric auth (`expo-local-authentication`) — fingerprint / Face ID setiap buka app & kembali dari background (`AppState`); cache tetap ada, hanya auth gate yang di-reset
 
 **Home**
 
@@ -171,7 +172,6 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 **Auth**
 
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`) — OAuth native flow, butuh endpoint `POST /auth/google/mobile` di backend
-- [ ] Biometric auth (`expo-local-authentication`) — fingerprint / Face ID sebelum checkout atau buka app
 
 **Tampilan**
 

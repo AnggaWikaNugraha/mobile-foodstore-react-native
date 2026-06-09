@@ -1,10 +1,12 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { View, ActivityIndicator } from 'react-native'
 
 import useAuthStore from './src/store/authStore'
+import { useBiometricAuth } from './src/hooks/useBiometricAuth'
+import LockScreen from './src/screens/auth/LockScreen'
 import { MainStackParamList } from './src/types/navigation'
 import LoginScreen from './src/screens/auth/LoginScreen'
 import RegisterScreen from './src/screens/auth/RegisterScreen'
@@ -49,12 +51,24 @@ function RootNavigator() {
   )
 }
 
+function BiometricGate({ children }: { children: React.ReactNode }) {
+  const { authenticated, supported, checking, authenticate } = useBiometricAuth()
+
+  if (supported && !authenticated) {
+    return <LockScreen onRetry={authenticate} checking={checking} />
+  }
+
+  return <>{children}</>
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
+      <BiometricGate>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </BiometricGate>
     </QueryClientProvider>
   )
 }
