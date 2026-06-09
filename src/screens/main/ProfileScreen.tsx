@@ -18,6 +18,7 @@ import { MainStackParamList } from '../../types/navigation'
 import { Order, OrderStatus } from '../../types/order'
 import { getImageUrl } from '../../lib/utils'
 import AddressFormModal from '../../components/address/AddressFormModal'
+import OrderRowSkeleton from '../../components/skeleton/OrderRowSkeleton'
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'Profile'>
@@ -379,7 +380,7 @@ export default function ProfileScreen({ navigation, route }: Props) {
               <View style={[styles.card, { marginTop: 12 }]}>
                 <Text style={styles.cardTitle}>Riwayat Belanja</Text>
                 {loadingOrders
-                  ? <ActivityIndicator color={t.primary} style={{ marginTop: 16 }} />
+                  ? <>{Array.from({ length: 4 }).map((_, i) => <OrderRowSkeleton key={i} />)}</>
                   : !orders?.length
                     ? <Text style={[styles.cardSubtitle, { marginTop: 8 }]}>Belum ada transaksi.</Text>
                     : <>

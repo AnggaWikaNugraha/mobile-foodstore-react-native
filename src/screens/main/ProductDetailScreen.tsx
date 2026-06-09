@@ -11,6 +11,7 @@ import { useWishlist, useAddWishlist, useRemoveWishlist } from '../../hooks/useW
 import { useReviews } from '../../hooks/useReviews'
 import { useTheme } from '../../hooks/useTheme'
 import { getImageUrl } from '../../lib/utils'
+import ProductDetailSkeleton from '../../components/skeleton/ProductDetailSkeleton'
 
 type Props = {
   navigation: NativeStackNavigationProp<MainStackParamList, 'ProductDetail'>
@@ -54,13 +55,7 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
     }
   }
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]} edges={['top']}>
-        <ActivityIndicator size="large" color={t.primary} />
-      </SafeAreaView>
-    )
-  }
+  if (isLoading) return <ProductDetailSkeleton />
 
   if (!product) {
     return (

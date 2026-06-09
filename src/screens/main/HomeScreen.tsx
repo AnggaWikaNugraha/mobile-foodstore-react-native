@@ -15,6 +15,7 @@ import { useTheme } from '../../hooks/useTheme'
 import useAuthStore from '../../store/authStore'
 import { useWishlist, useAddWishlist, useRemoveWishlist } from '../../hooks/useWishlist'
 import ProductCard from '../../components/product/ProductCard'
+import ProductCardSkeleton from '../../components/skeleton/ProductCardSkeleton'
 import Header from '../../components/ui/Header'
 import Banner from '../../components/ui/Banner'
 import { MainStackParamList } from '../../types/navigation'
@@ -212,8 +213,13 @@ export default function HomeScreen({ navigation }: Props) {
             )}
 
             {isLoading && (
-              <View style={styles.centered}>
-                <ActivityIndicator size="large" color={t.primary} />
+              <View>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <View key={i} style={styles.skeletonRow}>
+                    <ProductCardSkeleton />
+                    <ProductCardSkeleton />
+                  </View>
+                ))}
               </View>
             )}
           </View>
@@ -336,5 +342,8 @@ const styles = StyleSheet.create({
   footerLoader: {
     paddingVertical: 16,
     alignItems: 'center',
+  },
+  skeletonRow: {
+    flexDirection: 'row',
   },
 })
