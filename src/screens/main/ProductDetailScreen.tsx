@@ -107,6 +107,26 @@ export default function ProductDetailScreen({ navigation, route }: Props) {
 
           <Text style={[styles.price, { color: t.primary }]}>{formatPrice(product.price)}</Text>
 
+          {/* Rating */}
+          <View style={styles.ratingRow}>
+            {[1, 2, 3, 4, 5].map(i => (
+              <Ionicons
+                key={i}
+                name={product.avg_rating && i <= Math.round(product.avg_rating) ? 'star' : 'star-outline'}
+                size={15}
+                color="#f59e0b"
+              />
+            ))}
+            {product.avg_rating && product.avg_rating > 0 ? (
+              <>
+                <Text style={styles.ratingAvg}>{product.avg_rating.toFixed(1)}</Text>
+                <Text style={[styles.ratingCount, { color: t.textMuted }]}>· {product.review_count ?? 0} ulasan</Text>
+              </>
+            ) : (
+              <Text style={[styles.ratingCount, { color: t.textMuted }]}>Belum ada ulasan</Text>
+            )}
+          </View>
+
           {/* Category & tags */}
           <View style={styles.chipsRow}>
             {categoryName && (
@@ -252,4 +272,7 @@ const styles = StyleSheet.create({
   reviewUser: { fontSize: 13, fontWeight: '700', color: '#1a1a1a', flex: 1 },
   reviewDate: { fontSize: 11 },
   reviewComment: { fontSize: 13, color: '#555', lineHeight: 20 },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 12 },
+  ratingAvg: { fontSize: 14, fontWeight: '700', color: '#1a1a1a', marginLeft: 2 },
+  ratingCount: { fontSize: 13 },
 })

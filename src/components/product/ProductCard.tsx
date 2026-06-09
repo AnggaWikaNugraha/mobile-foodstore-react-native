@@ -46,7 +46,16 @@ export default function ProductCard({ product, onPress, isWishlisted, onToggleWi
         <Text style={[styles.price, { color: t.primary }]}>{formatPrice(product.price)}</Text>
 
         <View style={styles.footer}>
-          <Text style={[styles.noReview, { color: t.textMuted }]}>Belum ada ulasan</Text>
+          {product.avg_rating && product.avg_rating > 0 ? (
+            <View style={styles.ratingRow}>
+              <Ionicons name="star" size={11} color="#f59e0b" />
+              <Text style={[styles.ratingText, { color: t.textMuted }]}>
+                {product.avg_rating.toFixed(1)} ({product.review_count ?? 0})
+              </Text>
+            </View>
+          ) : (
+            <Text style={[styles.noReview, { color: t.textMuted }]}>Belum ada ulasan</Text>
+          )}
           {product.stock > 0 ? (
             <TouchableOpacity
               style={[styles.addButton, { backgroundColor: isMaxStock ? '#ccc' : t.primary, opacity: isPending ? 0.6 : 1 }]}
@@ -119,6 +128,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noReview: { fontSize: 11 },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  ratingText: { fontSize: 11 },
   addButton: { borderRadius: 8, padding: 5 },
   outOfStockBadge: {
     backgroundColor: '#fee2e2',

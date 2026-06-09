@@ -157,6 +157,7 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 - [x] `useInfiniteQuery` + infinite scroll — `GET /api/products` (auto-load via `onEndReached` di FlatList) + `GET /api/orders` (auto-load via `onScroll` di ScrollView); `limit:5`, `skip` per page, `getNextPageParam` dari `count`
 - [x] Skeleton loading — shimmer placeholder (`Animated` + `expo-linear-gradient`) di HomeScreen (product grid 6 card), ProductDetailScreen (hero + konten), ProfileScreen Riwayat tab (4 row)
+- [x] Average rating di ProductCard (⭐ 4.2 · count) dan ProductDetailScreen (5 bintang + avg + jumlah ulasan) dari field `avg_rating` + `review_count`
 
 ### 🚧 Coming Soon
 
@@ -173,7 +174,6 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Product & UX**
 
-- [ ] Average rating di ProductCard & DetailScreen — data `avg_rating` sudah ada di API, tampilkan bintang
 - [ ] Search history — simpan pencarian terakhir ke `AsyncStorage`, tampil sebagai quick-suggestion
 
 **Tampilan**
