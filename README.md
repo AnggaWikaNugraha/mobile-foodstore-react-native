@@ -166,6 +166,7 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Infrastruktur**
 
+- [x] Offline banner (`@react-native-community/netinfo`) — deteksi koneksi hilang, tampil banner, retry otomatis saat online kembali
 - [x] Deep linking — buka InvoiceScreen / ProductDetailScreen langsung dari notifikasi atau external link
 
 ### 🚧 Coming Soon
@@ -177,7 +178,3 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 **Tampilan**
 
 - [ ] Dark mode — theme system sudah ada, tambah variant `dark` per token warna
-
-**Infrastruktur**
-
-- [ ] Offline banner (`@react-native-community/netinfo`) — deteksi koneksi hilang, tampil banner, retry otomatis saat online kembali

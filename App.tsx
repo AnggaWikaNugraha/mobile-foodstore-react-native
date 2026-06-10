@@ -7,6 +7,7 @@ import { View, ActivityIndicator } from 'react-native'
 import useAuthStore from './src/store/authStore'
 import { useBiometricAuth } from './src/hooks/useBiometricAuth'
 import { usePushNotification } from './src/hooks/usePushNotification'
+import OfflineBanner from './src/components/OfflineBanner'
 import LockScreen from './src/screens/auth/LockScreen'
 import { MainStackParamList } from './src/types/navigation'
 import LoginScreen from './src/screens/auth/LoginScreen'
@@ -71,6 +72,7 @@ function AppContent() {
       <NavigationContainer ref={navigationRef}>
         <RootNavigator />
       </NavigationContainer>
+      <OfflineBanner />
     </BiometricGate>
   )
 }
