@@ -168,7 +168,7 @@ export default function InvoiceScreen({ navigation, route }: Props) {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={[styles.header, { backgroundColor: t.primary }]}>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile', { initialTab: 'riwayat' })}>
+          <TouchableOpacity onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Profile', { initialTab: 'riwayat' })}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Riwayat Belanja</Text>
