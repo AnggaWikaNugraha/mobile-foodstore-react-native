@@ -167,7 +167,14 @@ export default function ProfileScreen({ navigation, route }: Props) {
   const handleLogout = () => {
     Alert.alert('Logout', 'Yakin ingin keluar?', [
       { text: 'Batal', style: 'cancel' },
-      { text: 'Logout', style: 'destructive', onPress: logout },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await logout()
+          navigation.reset({ index: 0, routes: [{ name: 'Home' }] })
+        },
+      },
     ])
   }
 
