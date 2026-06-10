@@ -87,7 +87,10 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Tombol "Konfirmasi Diterima" saat status `in_delivery`
 - [x] Tombol "Beri Rating" per item saat status `delivered`
 - [x] Info pengiriman (alamat), info pembayaran (nama + email user), item pesanan, ringkasan harga
-- [x] Auto-refetch status setiap 10 detik (sementara sebelum Pusher)
+
+**Realtime & Notifikasi**
+
+- [x] FCM push notification — status order update dikirim dari backend via `firebase-admin`, diterima di foreground (`setNotificationHandler`), background, dan terminated (`getLastNotificationResponseAsync`); tap notif langsung navigate ke InvoiceScreen
 
 **Profile**
 
@@ -161,13 +164,11 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Average rating di ProductCard (⭐ 4.2 · count) dan ProductDetailScreen (5 bintang + avg + jumlah ulasan) dari field `avg_rating` + `review_count`
 - [x] Search history — simpan pencarian terakhir ke `AsyncStorage` (maks 8), tampil saat search fokus + kosong; tap untuk isi ulang, hapus per item, hapus semua
 
+**Infrastruktur**
+
+- [x] Deep linking — buka InvoiceScreen / ProductDetailScreen langsung dari notifikasi atau external link
+
 ### 🚧 Coming Soon
-
-**Realtime & Notifikasi**
-
-- [ ] Tracking status order realtime — ganti polling 10s dengan Pusher (`private-order-<id>`, event `order:status_updated`)
-- [ ] Notifikasi realtime (Pusher) — subscribe channel user, tampil toast/badge saat ada event baru
-- [ ] Expo Push Notifications — notif OS-level saat status order berubah, token management, background handler
 
 **Auth**
 
@@ -179,5 +180,4 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Infrastruktur**
 
-- [ ] Deep linking — buka InvoiceScreen / ProductDetailScreen langsung dari notifikasi atau external link
 - [ ] Offline banner (`@react-native-community/netinfo`) — deteksi koneksi hilang, tampil banner, retry otomatis saat online kembali

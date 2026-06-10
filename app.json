@@ -15,13 +15,26 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff",
+          "androidMode": "default"
+        }
+      ],
       "@react-native-google-signin/google-signin",
       "expo-local-authentication",
       [
@@ -31,6 +44,12 @@
           "cameraPermission": "Izin untuk mengambil foto profil."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "aac0b10f-ca4f-40ac-866d-cbe79a8fe82d"
+      }
+    },
+    "owner": "anggawikanugraha"
   }
 }

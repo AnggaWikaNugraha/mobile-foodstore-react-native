@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react'
-import { NavigationContainer } from '@react-navigation/native'
+import React, { useEffect, useRef } from 'react'
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { View, ActivityIndicator } from 'react-native'
 
 import useAuthStore from './src/store/authStore'
 import { useBiometricAuth } from './src/hooks/useBiometricAuth'
+import { usePushNotification } from './src/hooks/usePushNotification'
 import LockScreen from './src/screens/auth/LockScreen'
 import { MainStackParamList } from './src/types/navigation'
 import LoginScreen from './src/screens/auth/LoginScreen'
@@ -52,7 +53,7 @@ function RootNavigator() {
 }
 
 function BiometricGate({ children }: { children: React.ReactNode }) {
-  const { authenticated, supported, checking, authenticate } = useBiometricAuth()
+  const { authenticated, supported, checking, authenticate } = useBiometricAuth({ onBackground : false, onLaunch: false})
 
   if (supported && !authenticated) {
     return <LockScreen onRetry={authenticate} checking={checking} />
@@ -61,14 +62,23 @@ function BiometricGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function AppContent() {
+  const navigationRef = useRef<NavigationContainerRef<MainStackParamList>>(null)
+  usePushNotification(navigationRef)
+
+  return (
+    <BiometricGate>
+      <NavigationContainer ref={navigationRef}>
+        <RootNavigator />
+      </NavigationContainer>
+    </BiometricGate>
+  )
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BiometricGate>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </BiometricGate>
+      <AppContent />
     </QueryClientProvider>
   )
 }

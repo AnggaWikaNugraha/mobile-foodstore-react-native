@@ -2,10 +2,15 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { AppState, AppStateStatus } from 'react-native'
 import * as LocalAuthentication from 'expo-local-authentication'
 
-export function useBiometricAuth() {
-  const [authenticated, setAuthenticated] = useState(false)
+interface BiometricAuthOptions {
+  onLaunch?: boolean
+  onBackground?: boolean
+}
+
+export function useBiometricAuth({ onLaunch = true, onBackground = false }: BiometricAuthOptions = {}) {
+  const [authenticated, setAuthenticated] = useState(!onLaunch)
   const [supported, setSupported] = useState(false)
-  const [checking, setChecking] = useState(true)
+  const [checking, setChecking] = useState(onLaunch)
   const appState = useRef<AppStateStatus>(AppState.currentState)
   const isAuthenticating = useRef(false)
   const wentToBackground = useRef(false)
@@ -42,10 +47,13 @@ export function useBiometricAuth() {
   }, [])
 
   useEffect(() => {
+    if (!onLaunch) return
     authenticate()
   }, [])
 
   useEffect(() => {
+    if (!onBackground) return
+
     const sub = AppState.addEventListener('change', (next: AppStateStatus) => {
       appState.current = next
 
@@ -61,7 +69,7 @@ export function useBiometricAuth() {
       }
     })
     return () => sub.remove()
-  }, [authenticate])
+  }, [onBackground, authenticate])
 
   return { authenticated, supported, checking, authenticate }
 }

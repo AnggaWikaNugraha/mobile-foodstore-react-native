@@ -7,6 +7,5 @@ export function useOrder(orderId: string) {
     queryKey: ['orders', orderId],
     queryFn: () => api.get(`/api/orders/${orderId}`).then(res => res.data),
     enabled: !!orderId,
-    refetchInterval: 10000,
   })
 }
