@@ -36,6 +36,54 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 - [x] Guest mode — beranda bisa diakses tanpa login
 - [x] Biometric auth (`expo-local-authentication`) — fingerprint / Face ID setiap buka app & kembali dari background (`AppState`); cache tetap ada, hanya auth gate yang di-reset
 
+**Login Flow**
+
+```
+User masukkan email + password
+          |
+          ▼
+    POST /auth/login
+          |
+          ├─→ Email tidak ditemukan       → error "Email atau password salah"
+          |
+          ├─→ Password salah              → error "Email atau password salah"
+          |
+          ├─→ Akun belum diverifikasi     → verification email and otp (comingsoon)
+          |
+          └─→ Valid & terverifikasi
+                    |
+                    ▼
+              Generate JWT token
+              Simpan token ke DB (tokens[] array)
+              Return { user, token }
+                    |
+                    ▼
+              Simpan token ke SecureStore
+              Set user di Zustand store
+              Redirect ke Home
+```
+
+**Register Flow**
+
+```
+User isi nama + email + password
+          |
+          ▼
+   POST /auth/register
+          |
+          ├─→ Email sudah dipakai         → error "Email already exists"
+          |
+          └─→ Berhasil
+                    |
+                    ▼
+              Buat user baru di DB
+              Kirim email verifikasi (Nodemailer)
+              Return { message: "registered" }
+                    |
+                    ▼
+              Redirect ke Login
+```
+
 **Home**
 
 | Login | Guest |
@@ -173,6 +221,7 @@ Base URL: `https://foodstore-server-nu.vercel.app`
 
 **Auth**
 
+- [ ] OTP verification screen — saat login return error "email belum diverifikasi", tampilkan layar input 6-digit PIN yang dikirim ke email; endpoint: `POST /auth/mobile/send-otp` + `POST /auth/mobile/verify-otp` (terpisah dari flow web yang pakai link klik)
 - [ ] Google Sign-In native (`@react-native-google-signin/google-signin`) — OAuth native flow, butuh endpoint `POST /auth/google/mobile` di backend
 
 **Tampilan**
