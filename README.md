@@ -569,6 +569,8 @@ Open ProfileScreen
 
 **Order History**
 
+<img src="assets/screenshots/mobile order.png" width="200" />
+
 - [x] "Order History" tab in Profile — list of all orders from `GET /api/orders`
 - [x] Each row: icon, "Order #n", date, total price, status badge (Waiting/Processing/Shipped/Paid/Failed)
 - [x] Tap order → navigate to InvoiceScreen
@@ -653,6 +655,8 @@ Profile → Keamanan tab
 
 **Wishlist**
 
+<img src="assets/screenshots/mobile - whislist.png" width="200" />
+
 - [x] Toggle wishlist from product card (red/grey heart icon)
 - [x] Wishlist synced via `GET /api/wishlists` — heart updates immediately on HomeScreen open
 - [x] Add to wishlist via `POST /api/wishlists { product_id }`
@@ -702,6 +706,8 @@ HomeScreen loads
 ```
 
 **Product Detail**
+
+<img src="assets/screenshots/mobile - product detail.png" width="200" />
 
 - [x] Tap product card in Home → open detail screen
 - [x] Tap item in Favourites tab → open detail screen
@@ -764,6 +770,8 @@ Entry points:
 
 **Product Reviews**
 
+<img src="assets/screenshots/mobile - review.png" width="200" />
+
 - [x] "Give Review" button per item in InvoiceScreen when status is `delivered`
 - [x] Bottom sheet modal: star rating 1–5 (tap), comment field, rating label (Very Bad–Very Good)
 - [x] Submit via `POST /api/reviews { product_id, order_id, rating, comment }`
@@ -816,6 +824,8 @@ InvoiceScreen — order status: delivered
 ```
 
 **Delivery Address**
+
+<img src="assets/screenshots/mobile - address.png" width="200" />
 
 - [x] CRUD address in "Delivery Address" tab of ProfileScreen
 - [x] List of saved addresses (name, region, detail) with edit & delete buttons
