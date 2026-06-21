@@ -7,7 +7,7 @@ export function useGoogleAuth() {
   const [isLoading, setIsLoading] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (onSuccess?: () => void) => {
     // Cek apakah native module tersedia (tidak tersedia di Expo Go)
     try {
       require('@react-native-google-signin/google-signin')
@@ -37,6 +37,7 @@ export function useGoogleAuth() {
 
       const res = await api.post('/auth/google/mobile', { id_token: idToken })
       await setAuth(res.data.user, res.data.token)
+      onSuccess?.()
     } catch (error: any) {
       const { statusCodes } = require('@react-native-google-signin/google-signin')
       if (error.code === statusCodes.SIGN_IN_CANCELLED) return

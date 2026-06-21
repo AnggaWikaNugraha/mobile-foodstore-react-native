@@ -1,6 +1,78 @@
 # Foodstore Mobile App
 
-React Native mobile app for Foodstore, built with Expo SDK 54.
+A full-featured food e-commerce mobile application built with React Native (Expo SDK 54) and TypeScript. Users can browse food products, search with history, add to cart, checkout with saved delivery address, pay via Midtrans Snap, track order status, confirm delivery, review purchased items, and save favourites to wishlist. Authentication supports email/password and Google OAuth, with biometric lock (Face ID / fingerprint) on every app open. Receives real-time order status updates via FCM push notifications. Built on top of a REST API backend (Node.js + Express + MongoDB).
+
+## Project Structure
+
+```
+├── App.tsx                        # Entry point, BiometricGate, NavigationContainer
+├── app.json                       # Expo config (plugins, permissions)
+└── src/
+    ├── components/
+    │   ├── ui/
+    │   │   ├── Header.tsx         # Navbar (avatar, cart badge)
+    │   │   └── Banner.tsx         # Promo banner carousel
+    │   ├── product/
+    │   │   └── ProductCard.tsx    # Card grid dengan wishlist toggle & rating
+    │   ├── order/
+    │   │   └── ReviewModal.tsx    # Bottom sheet rating & komentar
+    │   ├── address/
+    │   │   ├── AddressFormModal.tsx
+    │   │   └── RegionPicker.tsx   # Cascading wilayah picker
+    │   ├── skeleton/
+    │   │   ├── Skeleton.tsx       # Shimmer base (Animated + LinearGradient)
+    │   │   ├── ProductCardSkeleton.tsx
+    │   │   ├── ProductDetailSkeleton.tsx
+    │   │   └── OrderRowSkeleton.tsx
+    │   └── OfflineBanner.tsx
+    ├── screens/
+    │   ├── auth/
+    │   │   ├── LoginScreen.tsx
+    │   │   ├── RegisterScreen.tsx
+    │   │   ├── GoogleAuthScreen.tsx
+    │   │   └── LockScreen.tsx     # Biometric gate UI
+    │   └── main/
+    │       ├── HomeScreen.tsx     # Product grid, search, filter, infinite scroll
+    │       ├── ProductDetailScreen.tsx
+    │       ├── CartScreen.tsx
+    │       ├── CheckoutScreen.tsx # 3-step stepper
+    │       ├── InvoiceScreen.tsx  # Status, Midtrans WebView, rating
+    │       └── ProfileScreen.tsx  # Biodata, riwayat, wishlist, alamat, tema
+    ├── hooks/
+    │   ├── useProducts.ts         # useInfiniteProducts
+    │   ├── useOrders.ts           # useInfiniteOrders
+    │   ├── useCart.ts
+    │   ├── useWishlist.ts
+    │   ├── useReviews.ts
+    │   ├── useDeliveryAddresses.ts
+    │   ├── useWilayah.ts
+    │   ├── useUpdateAvatar.ts
+    │   ├── usePushNotification.ts # FCM + notif listener
+    │   ├── useBiometricAuth.ts    # AppState + LocalAuthentication
+    │   ├── useSearchHistory.ts    # AsyncStorage persist
+    │   ├── useTheme.ts
+    │   ├── useGoogleAuth.ts
+    │   └── useOfflineBanner.ts
+    ├── store/
+    │   ├── authStore.ts           # Zustand: user, token, loadAuth
+    │   └── themeStore.ts          # Zustand: active theme
+    ├── lib/
+    │   ├── axios.ts               # Axios instance + JWT interceptor
+    │   ├── secureStorage.ts       # expo-secure-store wrapper
+    │   ├── snapHtml.ts            # Midtrans Snap HTML injector
+    │   └── utils.ts
+    ├── constants/
+    │   ├── themes.ts              # Multi-tema token warna
+    │   └── colors.ts
+    └── types/
+        ├── navigation.ts
+        ├── product.ts
+        ├── cart.ts
+        ├── order.ts
+        ├── address.ts
+        ├── review.ts
+        └── wishlist.ts
+```
 
 ## Tech Stack
 
@@ -18,6 +90,17 @@ React Native mobile app for Foodstore, built with Expo SDK 54.
 ## Backend
 
 Base URL: `https://foodstore-server-nu.vercel.app`
+
+### 🚧 Coming Soon
+
+**Auth**
+
+- [ ] OTP verification screen — saat login return error "email belum diverifikasi", tampilkan layar input 6-digit PIN yang dikirim ke email; endpoint: `POST /auth/mobile/send-otp` + `POST /auth/mobile/verify-otp` (terpisah dari flow web yang pakai link klik)
+- [ ] Google Sign-In native (`@react-native-google-signin/google-signin`) — OAuth native flow, butuh endpoint `POST /auth/google/mobile` di backend
+
+**Tampilan**
+
+- [ ] Dark mode — theme system sudah ada, tambah variant `dark` per token warna
 
 ## Features
 
@@ -216,14 +299,3 @@ User isi nama + email + password
 
 - [x] Offline banner (`@react-native-community/netinfo`) — deteksi koneksi hilang, tampil banner, retry otomatis saat online kembali
 - [x] Deep linking — buka InvoiceScreen / ProductDetailScreen langsung dari notifikasi atau external link
-
-### 🚧 Coming Soon
-
-**Auth**
-
-- [ ] OTP verification screen — saat login return error "email belum diverifikasi", tampilkan layar input 6-digit PIN yang dikirim ke email; endpoint: `POST /auth/mobile/send-otp` + `POST /auth/mobile/verify-otp` (terpisah dari flow web yang pakai link klik)
-- [ ] Google Sign-In native (`@react-native-google-signin/google-signin`) — OAuth native flow, butuh endpoint `POST /auth/google/mobile` di backend
-
-**Tampilan**
-
-- [ ] Dark mode — theme system sudah ada, tambah variant `dark` per token warna

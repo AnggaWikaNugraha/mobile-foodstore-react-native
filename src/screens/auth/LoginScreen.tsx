@@ -99,7 +99,7 @@ export default function LoginScreen({ navigation }: Props) {
 
         <TouchableOpacity
           style={[styles.googleButton, isGoogleLoading && styles.buttonDisabled]}
-          onPress={signInWithGoogle}
+          onPress={() => signInWithGoogle(() => navigation.reset({ index: 0, routes: [{ name: 'Home' }] }))}
           disabled={isGoogleLoading}
         >
           {isGoogleLoading
