@@ -290,6 +290,8 @@ Open CartScreen
 
 **Checkout**
 
+<img src="assets/screenshots/checkout.png"/>
+
 - [x] 3-step checkout flow with stepper UI
 - [x] Step 1: Review order items — only `checked = true` items from cart
 - [x] Step 2: Select delivery address from saved addresses (with radio select)
@@ -340,6 +342,8 @@ Navigate to CheckoutScreen
 ```
 
 **Invoice & Payment**
+
+<img src="assets/screenshots/invoices.png"/>
 
 - [x] Invoice card — invoice number, status badge (Paid), 4-step stepper (Payment → Processing → Shipped → Received)
 - [x] Status banner per condition: Waiting Payment, Confirmed, Processing, In Delivery, Received, Failed
