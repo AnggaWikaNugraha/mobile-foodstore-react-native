@@ -1,5 +1,7 @@
 # Foodstore Mobile App
 
+*Read this in other languages: [Bahasa Indonesia](README.id.md)*
+
 A full-featured food e-commerce mobile application built with React Native (Expo SDK 54) and TypeScript. Users can browse food products, search with history, add to cart, checkout with saved delivery address, pay via Midtrans Snap, track order status, confirm delivery, review purchased items, and save favourites to wishlist. Authentication supports email/password and Google OAuth, with biometric lock (Face ID / fingerprint) on every app open. Receives real-time order status updates via FCM push notifications. Built on top of a REST API backend (Node.js + Express + MongoDB).
 
 ## Project Structure
@@ -489,55 +491,55 @@ Open ProfileScreen
           |
           ▼
   Show hero: avatar, name, email, Customer #n
-  Horizontal tab bar: Biodata | Alamat | Riwayat | Favorit | Keamanan | Logout
+  Horizontal tab bar: Personal Info | Address | History | Favourites | Security | Logout
           |
-          ├─── Tab: Biodata Diri ────────────────────────────────────────────
+          ├─── Tab: Personal Info ───────────────────────────────────────────
           │         |
           │         ▼
           │   Show: Full Name, Email (+ verified/unverified badge),
           │         Role, Customer ID, Google login indicator
           │
-          ├─── Tab: Alamat Pengiriman ───────────────────────────────────────
+          ├─── Tab: Delivery Address ────────────────────────────────────────
           │         |
           │         ▼
           │   GET /api/delivery-addresses   ← useDeliveryAddresses
           │         |
           │         ├─→ isLoading → ActivityIndicator
-          │         ├─→ empty → "Belum ada alamat tersimpan"
-          │         └─→ address list (nama, region, detail)
+          │         ├─→ empty → "No saved address yet"
+          │         └─→ address list (label, region, detail)
           │                   ├─→ tap pencil → AddressFormModal (edit)
           │                   │         PUT /api/delivery-addresses/:id
           │                   ├─→ tap trash → Alert confirm
           │                   │         DELETE /api/delivery-addresses/:id
-          │                   └─→ tap "Tambah" → AddressFormModal (create)
+          │                   └─→ tap "Add" → AddressFormModal (create)
           │                             POST /api/delivery-addresses
           │
-          ├─── Tab: Riwayat Belanja ─────────────────────────────────────────
+          ├─── Tab: Order History ───────────────────────────────────────────
           │         |
           │         ▼
           │   GET /api/orders (infinite scroll)   ← useInfiniteOrders
           │         |
           │         ├─→ isLoading → OrderRowSkeleton × 4
           │         ├─→ waiting_payment orders > 0
-          │         │         → yellow banner "n pesanan menunggu pembayaran"
+          │         │         → yellow banner "n orders waiting for payment"
           │         │         → tap banner → expand/collapse order list
           │         │         → tap order → navigate('Invoice', { orderId })
           │         └─→ order list (number, date, total, status badge)
           │                   → scroll near bottom → fetchNextPage
           │                   → tap row → navigate('Invoice', { orderId })
           │
-          ├─── Tab: Favorit ────────────────────────────────────────────────
+          ├─── Tab: Favourites ─────────────────────────────────────────────
           │         |
           │         ▼
           │   GET /api/wishlists   ← useWishlist
           │         |
           │         ├─→ isLoading → ActivityIndicator
-          │         ├─→ empty → "Belum ada produk favorit"
+          │         ├─→ empty → "No favourite product yet"
           │         └─→ list (thumbnail, name, price)
           │                   ├─→ tap item → navigate('ProductDetail', { productId })
           │                   └─→ tap heart → DELETE /api/wishlists/:product_id
           │
-          ├─── Tab: Keamanan ───────────────────────────────────────────────
+          ├─── Tab: Security ───────────────────────────────────────────────
           │         |
           │         ▼
           │   Color theme picker (5 swatches)
@@ -547,13 +549,13 @@ Open ProfileScreen
           ├─── Avatar (tap) ────────────────────────────────────────────────
           │         |
           │         ├─→ has image → full-screen preview modal
-          │         │         └─→ "Ganti Foto" → open picker alert
+          │         │         └─→ "Change Photo" → open picker alert
           │         └─→ no image → open picker alert
-          │                   ├─→ Kamera → requestCameraPermissionsAsync
+          │                   ├─→ Camera → requestCameraPermissionsAsync
           │                   │         → launchCameraAsync (1:1, quality 0.8)
           │                   │         → PATCH /api/users/avatar (multipart)
           │                   │         → updateUser({ image_url }) in Zustand
-          │                   └─→ Galeri → requestMediaLibraryPermissionsAsync
+          │                   └─→ Gallery → requestMediaLibraryPermissionsAsync
           │                             → launchImageLibraryAsync (1:1, quality 0.8)
           │                             → PATCH /api/users/avatar (multipart)
           │                             → updateUser({ image_url }) in Zustand
@@ -561,8 +563,8 @@ Open ProfileScreen
           └─── Logout (tab bar) ───────────────────────────────────────────
                     |
                     ▼
-              Alert "Yakin ingin keluar?"
-                    ├─→ Batal → dismiss
+              Alert "Are you sure you want to log out?"
+                    ├─→ Cancel → dismiss
                     └─→ Logout → clear Zustand + SecureStore
                               → navigation.reset → Home
 ```
@@ -578,7 +580,7 @@ Open ProfileScreen
 - [x] Tap order in banner → navigate directly to that order's InvoiceScreen
 
 ```
-Open "Riwayat Belanja" tab (Profile)
+Open "Order History" tab (Profile)
           |
           ▼
   GET /api/orders (page 1)   ← useInfiniteOrders
@@ -588,7 +590,7 @@ Open "Riwayat Belanja" tab (Profile)
           ├─→ waiting_payment orders > 0
           │         |
           │         ▼
-          │   Yellow banner "n pesanan menunggu pembayaran"
+          │   Yellow banner "n orders waiting for payment"
           │         |
           │         ├─→ tap banner → expand / collapse list
           │         |
@@ -600,12 +602,12 @@ Open "Riwayat Belanja" tab (Profile)
                     ▼
               Each row: Order #n | date | total | status badge
               Status badge colors:
-                waiting_payment   → amber  "Menunggu"
-                payment_confirmed → blue   "Diproses"
-                processing        → blue   "Diproses"
-                in_delivery       → purple "Dikirim"
-                delivered         → green  "Lunas"
-                failed / expired  → red    "Gagal"
+                waiting_payment   → amber  "Waiting"
+                payment_confirmed → blue   "Processing"
+                processing        → blue   "Processing"
+                in_delivery       → purple "Shipped"
+                delivered         → green  "Paid"
+                failed / expired  → red    "Failed"
                     |
                     ├─→ tap row → navigate('Invoice', { orderId })
                     |
@@ -624,7 +626,7 @@ Open "Riwayat Belanja" tab (Profile)
 - [x] Change theme from Profile → Security tab
 
 ```
-Profile → Keamanan tab
+Profile → Security tab
           |
           ▼
   Show 5 color swatches
@@ -692,12 +694,12 @@ HomeScreen loads
           │         └─→ success → invalidate ['wishlists']
           │                     → heart turns grey
           │
-          └─── Profile → Favorit tab ─────────────────────────────────────
+          └─── Profile → Favourites tab ─────────────────────────────────
                     |
                     ▼
               GET /api/wishlists   ← useWishlist
                     |
-                    ├─→ empty → "Belum ada produk favorit"
+                    ├─→ empty → "No favourite product yet"
                     |
                     └─→ list (thumbnail, name, price)
                               ├─→ tap item → navigate('ProductDetail', { productId })
@@ -719,26 +721,26 @@ HomeScreen loads
 ```
 Entry points:
   tap ProductCard (Home)          → navigate('ProductDetail', { productId, name })
-  tap item in Favorit tab         → navigate('ProductDetail', { productId, name })
+  tap item in Favourites tab      → navigate('ProductDetail', { productId, name })
           |
           ▼
   GET /api/products?q=name   ← useProduct(productId, name)
   filter result by _id
           |
           ├─→ isLoading → ProductDetailSkeleton
-          ├─→ not found → "Produk tidak ditemukan"
+          ├─→ not found → "Product not found"
           └─→ product loaded
                     |
                     ▼
               Full-width image (280px height)
               Name + stock badge:
-                stock 1–5  → "Sisa n" badge (primary color)
-                stock 0    → "Habis" badge (red)
+                stock 1–5  → "n left" badge (primary color)
+                stock 0    → "Out of stock" badge (red)
               Price
               Star rating (avg_rating) + review count
               Category chip + tag chips
               Description (if any)
-              Stock count + "n di keranjang" (if cartQty > 0)
+              Stock count + "n in cart" (if cartQty > 0)
                     |
                     ├─── Header heart (wishlist toggle) ──────────────────
                     │         |
@@ -752,13 +754,13 @@ Entry points:
                     │   GET /api/reviews?product_id=...   ← useReviews
                     │         |
                     │         ├─→ loading → ActivityIndicator
-                    │         ├─→ empty   → "Belum ada ulasan"
+                    │         ├─→ empty   → "No reviews yet"
                     │         └─→ list: stars, reviewer name, date, comment
                     │
-                    └─── "Tambah ke Keranjang" button (sticky footer) ────
+                    └─── "Add to Cart" button (sticky footer) ────────────
                               |
-                              ├─→ stock = 0          → disabled "Stok Habis"
-                              ├─→ cartQty ≥ stock    → disabled "Stok Penuh"
+                              ├─→ stock = 0          → disabled "Out of Stock"
+                              ├─→ cartQty ≥ stock    → disabled "Stock Limit Reached"
                               └─→ available
                                         |
                                         ▼
@@ -835,25 +837,25 @@ InvoiceScreen — order status: delivered
 - [x] Delete address confirmation via Alert
 
 ```
-Profile → Alamat Pengiriman tab
+Profile → Delivery Address tab
           |
           ▼
   GET /api/delivery-addresses   ← useDeliveryAddresses
           |
           ├─→ isLoading → ActivityIndicator
-          ├─→ empty → "Belum ada alamat tersimpan"
+          ├─→ empty → "No saved address yet"
           └─→ address list (label, region, detail)
                     |
                     ├─── tap pencil → AddressFormModal (edit mode)
-                    │         pre-fills: nama, provinsi, kabupaten,
-                    │                   kecamatan, kelurahan, detail
+                    │         pre-fills: label, province, city,
+                    │                   district, village, detail
                     │
-                    ├─── tap trash → Alert "Hapus alamat?"
-                    │         ├─→ Batal → dismiss
-                    │         └─→ Hapus → DELETE /api/delivery-addresses/:id
+                    ├─── tap trash → Alert "Delete this address?"
+                    │         ├─→ Cancel → dismiss
+                    │         └─→ Delete → DELETE /api/delivery-addresses/:id
                     │                   → invalidate ['addresses']
                     │
-                    └─── tap "Tambah" → AddressFormModal (create mode)
+                    └─── tap "Add" → AddressFormModal (create mode)
                               empty form
 
 ─────────────────────────────────────────────────────────
@@ -861,27 +863,27 @@ Profile → Alamat Pengiriman tab
 AddressFormModal (bottom sheet)
           |
           ▼
-  Label Alamat  (TextInput — e.g. "Rumah", "Kantor")
+  Address Label  (TextInput — e.g. "Home", "Office")
           |
           ▼
   Cascading RegionPicker:
-    1. Provinsi
+    1. Province
          GET /api/wilayah/provinsi   (loaded once)
-         → pick → clears Kabupaten, Kecamatan, Kelurahan
-    2. Kabupaten / Kota
-         GET /api/wilayah/kabupaten?kode=<provinsi_kode>
-         disabled until Provinsi selected
-         → pick → clears Kecamatan, Kelurahan
-    3. Kecamatan
-         GET /api/wilayah/kecamatan?kode=<kabupaten_kode>
-         disabled until Kabupaten selected
-         → pick → clears Kelurahan
-    4. Kelurahan / Desa
-         GET /api/wilayah/desa?kode=<kecamatan_kode>
-         disabled until Kecamatan selected
+         → pick → clears City, District, Village
+    2. City / Regency
+         GET /api/wilayah/kabupaten?kode=<province_code>
+         disabled until Province selected
+         → pick → clears District, Village
+    3. District
+         GET /api/wilayah/kecamatan?kode=<city_code>
+         disabled until City selected
+         → pick → clears Village
+    4. Village
+         GET /api/wilayah/desa?kode=<district_code>
+         disabled until District selected
           |
           ▼
-  Detail Alamat (multiline — jalan, nomor, RT/RW, patokan)
+  Address Detail (multiline — street, number, RT/RW, landmark)
           |
           ▼
   Submit button
@@ -894,7 +896,7 @@ AddressFormModal (bottom sheet)
           │
           └─→ edit mode   → PUT /api/delivery-addresses/:id { ...payload }
                             → success → close modal, invalidate ['addresses']
-                            (error → Alert "Gagal menyimpan alamat")
+                            (error → Alert "Failed to save address")
 ```
 
 **Profile & Media**
@@ -910,7 +912,7 @@ Profile hero — tap avatar
           │   Full-screen preview modal (dark overlay)
           │         |
           │         ├─→ tap X / back → close modal
-          │         └─→ tap "Ganti Foto" → close modal
+          │         └─→ tap "Change Photo" → close modal
           │                   → 300ms delay → open picker alert
           │
           └─→ no image (initials avatar)
@@ -920,14 +922,14 @@ Profile hero — tap avatar
 
 ─────────────────────────────────────────────────────────
 
-Picker Alert "Pilih sumber foto"
+Picker Alert "Choose photo source"
           |
-          ├─── Kamera ──────────────────────────────────────────────────
+          ├─── Camera ──────────────────────────────────────────────────
           │         |
           │         ▼
           │   requestCameraPermissionsAsync()
           │         |
-          │         ├─→ denied → Alert "Izin kamera dibutuhkan"
+          │         ├─→ denied → Alert "Camera permission required"
           │         └─→ granted
           │                   ▼
           │             launchCameraAsync
@@ -938,12 +940,12 @@ Picker Alert "Pilih sumber foto"
           │                   └─→ photo captured (uri)
           │                             → uploadAvatar(uri)
           │
-          ├─── Galeri ──────────────────────────────────────────────────
+          ├─── Gallery ─────────────────────────────────────────────────
           │         |
           │         ▼
           │   requestMediaLibraryPermissionsAsync()
           │         |
-          │         ├─→ denied → Alert "Izin galeri dibutuhkan"
+          │         ├─→ denied → Alert "Gallery permission required"
           │         └─→ granted
           │                   ▼
           │             launchImageLibraryAsync
@@ -954,7 +956,7 @@ Picker Alert "Pilih sumber foto"
           │                   └─→ image selected (uri)
           │                             → uploadAvatar(uri)
           │
-          └─── Batal → dismiss
+          └─── Cancel → dismiss
 
 ─────────────────────────────────────────────────────────
 
@@ -968,7 +970,7 @@ uploadAvatar(uri)
   → Cloudinary upload on backend
   → returns { image_url }
           |
-          ├─→ error → Alert "Gagal upload foto"
+          ├─→ error → Alert "Failed to upload photo"
           └─→ success
                     → updateUser({ image_url }) in Zustand
                     → hero avatar re-renders immediately
@@ -1010,7 +1012,7 @@ uploadAvatar(uri)
                (full-width image block + content lines)
     data ready → replace with real detail
 
-  Profile → Riwayat Belanja tab
+  Profile → Order History tab
     isLoading → 4 × OrderRowSkeleton (shimmer rows)
     data ready → replace with real order rows
 
@@ -1021,12 +1023,12 @@ uploadAvatar(uri)
 ── Average Rating ──────────────────────────────────────────────────────────
 
   ProductCard (Home grid)
-    avg_rating > 0  → ⭐ 4.2 · 12 ulasan
+    avg_rating > 0  → ⭐ 4.2 · 12 reviews
     avg_rating = 0  → no rating shown
 
   ProductDetailScreen
-    avg_rating > 0  → 5-star row (filled/outline) + "4.2" + "· 12 ulasan"
-    avg_rating = 0  → "Belum ada ulasan"
+    avg_rating > 0  → 5-star row (filled/outline) + "4.2" + "· 12 reviews"
+    avg_rating = 0  → "No reviews yet"
 
   Fields come from backend: product.avg_rating, product.review_count
   (computed server-side, not fetched separately)
@@ -1039,7 +1041,7 @@ uploadAvatar(uri)
   User focuses search input (query empty)
     history.length > 0 → show Search History panel
       each item: term + X button
-      "Hapus Semua" button
+      "Clear All" button
 
   User types (debounce 500ms) → hide history panel, run search
 
@@ -1054,7 +1056,7 @@ uploadAvatar(uri)
     → run search immediately
 
   Tap X on item → removeSearch(term) → AsyncStorage update
-  Tap "Hapus Semua" → AsyncStorage.removeItem → history = []
+  Tap "Clear All" → AsyncStorage.removeItem → history = []
 ```
 
 **Infrastructure**
@@ -1132,5 +1134,3 @@ uploadAvatar(uri)
   All authenticated requests      All requests go without token
   carry Bearer header             → 401 responses expected
 ```
-
-
